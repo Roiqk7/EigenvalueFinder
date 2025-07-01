@@ -1,0 +1,78 @@
+# Visual Studio and .NET related files
+## Project files
+[Bb]in/
+[Oo]bj/
+*.dll
+*.exe
+*.pdb
+*.obj
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.builds
+*.kdev4
+_ReSharper.*/
+*.testrunconfig
+*.vspscc
+*.vssscc
+*.tlog
+*.trx
+*.orig
+*.aps
+*.bsc
+*.db
+*.log
+*.pidb
+*.sbr
+*.pch
+*.exp
+*.lib
+*.ncb
+*.opensdf
+*.sdf
+*.ipch
+# Build results
+*.cache
+*.objd
+*.ilk
+*.tlb
+# Resharper generated files
+/resharper/
+
+# Rider and JetBrains IDE specific files
+.idea/
+*.iml
+*.ipr
+*.iws
+*.sln.DotSettings.user # Specific to your project structure
+
+# Windows files
+[Tt]humbs.db
+[Dd]esktop.ini
+
+# macOS files
+.DS_Store
+
+# NuGet package management
+packages/  # Old style NuGet packages
+# Don't ignore .nupkg in solution root, but ignore in subdirectories
+# For .NET Core, packages are restored to a global cache, so usually not committed
+# but some local caches might exist.
+# nuget.g.props
+# nuget.g.targets
+
+# Local project settings
+.vs/ # Visual Studio related files
+.vscode/ # VS Code settings (if you use it)
+
+# Miscellaneous
+*.tmp
+*.tmp.*
+*.bak
+*.scc
+*.vssscc
+*.bak.suo
+
+# Log files
+*.log*
