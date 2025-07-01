@@ -1,309 +1,459 @@
 using NUnit.Framework;
 using EigenvalueFinder.Core;
 using System;
+using System.Text;
 
 namespace EigenvalueFinder.Tests;
 
 [TestFixture]
 public class MatrixTests
 {
-        // --- Constructor Tests ---
-
         [Test]
-        public void Matrix_Constructor_CreatesZeroMatrix_WithCorrectDimensions()
+        public void Constructor_Dimensions_CreatesZeroMatrix()
         {
-                Console.WriteLine("Testing Matrix_Constructor_CreatesZeroMatrix_WithCorrectDimensions.");
-
                 int rows = 3;
                 int cols = 4;
 
-                EigenvalueFinder.Core.Matrix matrix = new EigenvalueFinder.Core.Matrix(rows, cols);
+                Matrix matrix = new Matrix(rows, cols);
 
-                Assert.Multiple(() =>
+                Assert.That(matrix.RowCount, Is.EqualTo(rows));
+                Assert.That(matrix.ColumnCount, Is.EqualTo(cols));
+                for (int r = 0; r < rows; r++)
                 {
-                        Assert.AreEqual(rows, matrix.RowCount, "Row count should match constructor argument.");
-                        Assert.AreEqual(cols, matrix.ColumnCount, "Column count should match constructor argument.");
-                        for (int r = 0; r < rows; r++)
+                        for (int c = 0; c < cols; c++)
                         {
-                                for (int c = 0; c < cols; c++)
-                                {
-                                        Assert.AreEqual(0.0, matrix[r, c], "All elements should be initialized to zero.");
-                                }
+                                Assert.That(matrix[r, c], Is.EqualTo(0.0));
                         }
-                });
-                Console.WriteLine("Matrix constructed successfully with zeros.");
+                }
         }
 
         [Test]
-        public void Matrix_Constructor_ThrowsOnNonPositiveDimensions()
+        public void Constructor_Dimensions_ThrowsOnNonPositiveRows()
         {
-                Console.WriteLine("Testing Matrix_Constructor_ThrowsOnNonPositiveDimensions.");
-
-                Assert.Throws<ArgumentOutOfRangeException>(new TestDelegate(() => new EigenvalueFinder.Core.Matrix(0, 5)), "Constructor should throw for zero rows.");
-                Assert.Throws<ArgumentOutOfRangeException>(new TestDelegate(() => new EigenvalueFinder.Core.Matrix(5, 0)), "Constructor should throw for zero columns.");
-                Assert.Throws<ArgumentOutOfRangeException>(new TestDelegate(() => new EigenvalueFinder.Core.Matrix(-1, 5)), "Constructor should throw for negative rows.");
-                Assert.Throws<ArgumentOutOfRangeException>(new TestDelegate(() => new EigenvalueFinder.Core.Matrix(5, -1)), "Constructor should throw for negative columns.");
-                Console.WriteLine("Constructor correctly threw exceptions for invalid dimensions.");
-        }
-
-        [Test]
-        public void Matrix_Constructor_FromArray_CreatesCorrectMatrix()
-        {
-                Console.WriteLine("Testing Matrix_Constructor_FromArray_CreatesCorrectMatrix.");
-
-                double[,] data = {
-                    {1.0, 2.0, 3.0},
-                    {4.0, 5.0, 6.0}
-                };
-                int rows = 2;
+                int rows = 0;
                 int cols = 3;
 
-                EigenvalueFinder.Core.Matrix matrix = new EigenvalueFinder.Core.Matrix(data);
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreEqual(rows, matrix.RowCount, "Row count should match array dimensions.");
-                        Assert.AreEqual(cols, matrix.ColumnCount, "Column count should match array dimensions.");
-                        for (int r = 0; r < rows; r++)
-                        {
-                                for (int c = 0; c < cols; c++)
-                                {
-                                        Assert.AreEqual(data[r, c], matrix[r, c], $"Element at ({r},{c}) should match array value.");
-                                }
-                        }
-                });
-                Console.WriteLine("Matrix constructed successfully from array.");
+                Assert.Throws<ArgumentOutOfRangeException>(() => new Matrix(rows, cols));
         }
 
         [Test]
-        public void Matrix_Constructor_FromArray_ThrowsOnNullArray()
+        public void Constructor_Dimensions_ThrowsOnNonPositiveColumns()
         {
-                Console.WriteLine("Testing Matrix_Constructor_FromArray_ThrowsOnNullArray.");
+                int rows = 3;
+                int cols = 0;
 
+                Assert.Throws<ArgumentOutOfRangeException>(() => new Matrix(rows, cols));
+        }
+
+        [Test]
+        public void Constructor_Dimensions_ThrowsOnNegativeRows()
+        {
+                int rows = -1;
+                int cols = 3;
+
+                Assert.Throws<ArgumentOutOfRangeException>(() => new Matrix(rows, cols));
+        }
+
+        [Test]
+        public void Constructor_Dimensions_ThrowsOnNegativeColumns()
+        {
+                int rows = 3;
+                int cols = -1;
+
+                Assert.Throws<ArgumentOutOfRangeException>(() => new Matrix(rows, cols));
+        }
+
+        [Test]
+        public void Constructor_2DArray_CreatesCorrectMatrix()
+        {
+                double[,] data = { { 1.0, 2.0 }, { 3.0, 4.0 }, { 5.0, 6.0 } };
+
+                Matrix matrix = new Matrix(data);
+
+                Assert.That(matrix.RowCount, Is.EqualTo(3));
+                Assert.That(matrix.ColumnCount, Is.EqualTo(2));
+                Assert.That(matrix[0, 0], Is.EqualTo(1.0));
+                Assert.That(matrix[0, 1], Is.EqualTo(2.0));
+                Assert.That(matrix[1, 0], Is.EqualTo(3.0));
+                Assert.That(matrix[1, 1], Is.EqualTo(4.0));
+                Assert.That(matrix[2, 0], Is.EqualTo(5.0));
+                Assert.That(matrix[2, 1], Is.EqualTo(6.0));
+        }
+
+        [Test]
+        public void Constructor_2DArray_ThrowsOnNullData()
+        {
                 double[,] data = null;
 
-                Assert.Throws<ArgumentNullException>(new TestDelegate(() => new EigenvalueFinder.Core.Matrix(data)), "Constructor should throw for null array.");
-                Console.WriteLine("Constructor correctly threw ArgumentNullException for null array.");
+                Assert.Throws<ArgumentNullException>(() => new Matrix(data));
         }
 
-        // --- Indexer Tests ---
+        [Test]
+        public void Constructor_DenseMatrix_WrapsCorrectly()
+        {
+                MathNet.Numerics.LinearAlgebra.Double.DenseMatrix denseMatrix = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.OfArray(new double[,] { { 7.0, 8.0 }, { 9.0, 10.0 } });
+
+                Matrix matrix = new Matrix(denseMatrix);
+
+                Assert.That(matrix.RowCount, Is.EqualTo(2));
+                Assert.That(matrix.ColumnCount, Is.EqualTo(2));
+                Assert.That(matrix[0, 0], Is.EqualTo(7.0));
+                Assert.That(matrix[1, 1], Is.EqualTo(10.0));
+        }
 
         [Test]
-        public void Matrix_Indexer_SetAndGetValue()
+        public void Constructor_DenseMatrix_ThrowsOnNullDenseMatrix()
         {
-                Console.WriteLine("Testing Matrix_Indexer_SetAndGetValue.");
+                MathNet.Numerics.LinearAlgebra.Double.DenseMatrix denseMatrix = null;
 
-                EigenvalueFinder.Core.Matrix matrix = new EigenvalueFinder.Core.Matrix(2, 2);
+                Assert.Throws<ArgumentNullException>(() => new Matrix(denseMatrix));
+        }
+
+        [Test]
+        public void Identity_CreatesCorrectIdentityMatrix()
+        {
+                int size = 3;
+                double[,] expectedData = { { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
+                Matrix expectedMatrix = new Matrix(expectedData);
+
+                Matrix identityMatrix = Matrix.Identity(size);
+
+                Assert.That(identityMatrix.RowCount, Is.EqualTo(size));
+                Assert.That(identityMatrix.ColumnCount, Is.EqualTo(size));
+                for (int r = 0; r < size; r++)
+                {
+                        for (int c = 0; c < size; c++)
+                        {
+                                Assert.That(identityMatrix[r, c], Is.EqualTo(expectedMatrix[r, c]));
+                        }
+                }
+        }
+
+        [Test]
+        public void Identity_ThrowsOnNonPositiveSize()
+        {
+                int size = 0;
+
+                Assert.Throws<ArgumentOutOfRangeException>(() => Matrix.Identity(size));
+        }
+
+        [Test]
+        public void Identity_ThrowsOnNegativeSize()
+        {
+                int size = -1;
+
+                Assert.Throws<ArgumentOutOfRangeException>(() => Matrix.Identity(size));
+        }
+
+        [Test]
+        public void Indexer_GetAndSet_WorksCorrectly()
+        {
+                Matrix matrix = new Matrix(2, 2);
                 double value = 123.45;
-                int row = 1;
-                int col = 0;
 
-                matrix[row, col] = value;
-                double retrievedValue = matrix[row, col];
+                matrix[0, 0] = value;
+                double retrievedValue = matrix[0, 0];
 
-                Assert.AreEqual(value, retrievedValue, "Indexer should correctly set and retrieve value.");
-                Console.WriteLine($"Value {value} set and retrieved at ({row},{col}).");
-        }
-
-        // --- Operator Overloading Tests ---
-
-        [Test]
-        public void Matrix_Multiplication_MatrixByMatrix_PerformsCorrectly()
-        {
-                Console.WriteLine("Testing Matrix_Multiplication_MatrixByMatrix_PerformsCorrectly.");
-
-                EigenvalueFinder.Core.Matrix A = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
-                EigenvalueFinder.Core.Matrix B = new EigenvalueFinder.Core.Matrix(new double[,] { { 5, 6 }, { 7, 8 } });
-                EigenvalueFinder.Core.Matrix expectedC = new EigenvalueFinder.Core.Matrix(new double[,] { { 1*5 + 2*7, 1*6 + 2*8 }, { 3*5 + 4*7, 3*6 + 4*8 } });
-
-                EigenvalueFinder.Core.Matrix C = A * B;
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreEqual(2, C.RowCount);
-                        Assert.AreEqual(2, C.ColumnCount);
-                        Assert.AreEqual(19.0, C[0, 0], 1e-9);
-                        Assert.AreEqual(22.0, C[0, 1], 1e-9);
-                        Assert.AreEqual(43.0, C[1, 0], 1e-9);
-                        Assert.AreEqual(50.0, C[1, 1], 1e-9);
-                });
-                Console.WriteLine("Matrix-Matrix multiplication successful.");
-
-                EigenvalueFinder.Core.Matrix D = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2, 3 } });
-                Assert.Throws<ArgumentException>(new TestDelegate(() => { var result = A * D; }), "Multiplication should throw for incompatible dimensions.");
-                Console.WriteLine("Matrix-Matrix multiplication correctly threw for incompatible dimensions.");
+                Assert.That(retrievedValue, Is.EqualTo(value));
         }
 
         [Test]
-        public void Matrix_Multiplication_MatrixByScalar_PerformsCorrectly()
+        public void Indexer_Get_ThrowsOnOutOfRange()
         {
-                Console.WriteLine("Testing Matrix_Multiplication_MatrixByScalar_PerformsCorrectly.");
+                Matrix matrix = new Matrix(2, 2);
 
-                EigenvalueFinder.Core.Matrix A = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
-                double scalar = 2.0;
-                EigenvalueFinder.Core.Matrix expectedB = new EigenvalueFinder.Core.Matrix(new double[,] { { 2, 4 }, { 6, 8 } });
-
-                EigenvalueFinder.Core.Matrix B = A * scalar;
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreEqual(expectedB[0, 0], B[0, 0], 1e-9);
-                        Assert.AreEqual(expectedB[0, 1], B[0, 1], 1e-9);
-                        Assert.AreEqual(expectedB[1, 0], B[1, 0], 1e-9);
-                        Assert.AreEqual(expectedB[1, 1], B[1, 1], 1e-9);
-                });
-                Console.WriteLine("Matrix-Scalar multiplication successful.");
+                Assert.Throws<ArgumentOutOfRangeException>(() => { var val = matrix[2, 0]; });
+                Assert.Throws<ArgumentOutOfRangeException>(() => { var val = matrix[0, 2]; });
         }
 
         [Test]
-        public void Matrix_Multiplication_ScalarByMatrix_PerformsCorrectly()
+        public void Indexer_Set_ThrowsOnOutOfRange()
         {
-                Console.WriteLine("Testing Matrix_Multiplication_ScalarByMatrix_PerformsCorrectly.");
+                Matrix matrix = new Matrix(2, 2);
 
-                EigenvalueFinder.Core.Matrix A = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
-                double scalar = 2.0;
-                EigenvalueFinder.Core.Matrix expectedB = new EigenvalueFinder.Core.Matrix(new double[,] { { 2, 4 }, { 6, 8 } });
-
-                EigenvalueFinder.Core.Matrix B = scalar * A;
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreEqual(expectedB[0, 0], B[0, 0], 1e-9);
-                        Assert.AreEqual(expectedB[0, 1], B[0, 1], 1e-9);
-                        Assert.AreEqual(expectedB[1, 0], B[1, 0], 1e-9);
-                        Assert.AreEqual(expectedB[1, 1], B[1, 1], 1e-9);
-                });
-                Console.WriteLine("Scalar-Matrix multiplication successful.");
+                Assert.Throws<ArgumentOutOfRangeException>(() => matrix[2, 0] = 1.0);
+                Assert.Throws<ArgumentOutOfRangeException>(() => matrix[0, 2] = 1.0);
         }
 
         [Test]
-        public void Matrix_Addition_MatrixByMatrix_PerformsCorrectly()
+        public void Operator_Multiply_MatrixMatrix_PerformsCorrectly()
         {
-                Console.WriteLine("Testing Matrix_Addition_MatrixByMatrix_PerformsCorrectly.");
+                Matrix left = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+                Matrix right = new Matrix(new double[,] { { 5, 6 }, { 7, 8 } });
+                Matrix expected = new Matrix(new double[,] { { 19, 22 }, { 43, 50 } });
 
-                EigenvalueFinder.Core.Matrix A = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
-                EigenvalueFinder.Core.Matrix B = new EigenvalueFinder.Core.Matrix(new double[,] { { 5, 6 }, { 7, 8 } });
-                EigenvalueFinder.Core.Matrix expectedC = new EigenvalueFinder.Core.Matrix(new double[,] { { 6, 8 }, { 10, 12 } });
+                Matrix result = left * right;
 
-                EigenvalueFinder.Core.Matrix C = A + B;
-
-                Assert.Multiple(() =>
+                Assert.That(result.RowCount, Is.EqualTo(2));
+                Assert.That(result.ColumnCount, Is.EqualTo(2));
+                for (int r = 0; r < result.RowCount; r++)
                 {
-                        Assert.AreEqual(expectedC[0, 0], C[0, 0], 1e-9);
-                        Assert.AreEqual(expectedC[0, 1], C[0, 1], 1e-9);
-                        Assert.AreEqual(expectedC[1, 0], C[1, 0], 1e-9);
-                        Assert.AreEqual(expectedC[1, 1], C[1, 1], 1e-9);
-                });
-                Console.WriteLine("Matrix-Matrix addition successful.");
-
-                EigenvalueFinder.Core.Matrix D = new EigenvalueFinder.Core.Matrix(new double[,] { { 1 }, { 2 }, { 3 } });
-                Assert.Throws<ArgumentException>(new TestDelegate(() => { var result = A + D; }), "Addition should throw for incompatible dimensions.");
-                Console.WriteLine("Matrix-Matrix addition correctly threw for incompatible dimensions.");
-        }
-
-        [Test]
-        public void Matrix_Subtraction_MatrixByMatrix_PerformsCorrectly()
-        {
-                Console.WriteLine("Testing Matrix_Subtraction_MatrixByMatrix_PerformsCorrectly.");
-
-                EigenvalueFinder.Core.Matrix A = new EigenvalueFinder.Core.Matrix(new double[,] { { 5, 6 }, { 7, 8 } });
-                EigenvalueFinder.Core.Matrix B = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
-                EigenvalueFinder.Core.Matrix expectedC = new EigenvalueFinder.Core.Matrix(new double[,] { { 4, 4 }, { 4, 4 } });
-
-                EigenvalueFinder.Core.Matrix C = A - B;
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreEqual(expectedC[0, 0], C[0, 0], 1e-9);
-                        Assert.AreEqual(expectedC[0, 1], C[0, 1], 1e-9);
-                        Assert.AreEqual(expectedC[1, 0], C[1, 0], 1e-9);
-                        Assert.AreEqual(expectedC[1, 1], C[1, 1], 1e-9);
-                });
-                Console.WriteLine("Matrix-Matrix subtraction successful.");
-        }
-
-        // --- Other Methods Tests ---
-
-        [Test]
-        public void Matrix_Transpose_PerformsCorrectly()
-        {
-                Console.WriteLine("Testing Matrix_Transpose_PerformsCorrectly.");
-
-                EigenvalueFinder.Core.Matrix A = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2, 3 }, { 4, 5, 6 } });
-                EigenvalueFinder.Core.Matrix expectedAT = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 4 }, { 2, 5 }, { 3, 6 } });
-
-                EigenvalueFinder.Core.Matrix AT = A.Transpose();
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreEqual(expectedAT.RowCount, AT.RowCount);
-                        Assert.AreEqual(expectedAT.ColumnCount, AT.ColumnCount);
-                        for (int r = 0; r < expectedAT.RowCount; r++)
+                        for (int c = 0; c < result.ColumnCount; c++)
                         {
-                                for (int c = 0; c < expectedAT.ColumnCount; c++)
-                                {
-                                        Assert.AreEqual(expectedAT[r, c], AT[r, c], 1e-9, $"Element at ({r},{c}) should match transposed value.");
-                                }
+                                Assert.That(result[r, c], Is.EqualTo(expected[r, c]));
                         }
-                });
-                Console.WriteLine("Matrix transpose successful.");
+                }
         }
 
         [Test]
-        public void Matrix_Clone_CreatesDeepCopy()
+        public void Operator_Multiply_MatrixMatrix_ThrowsOnIncompatibleDimensions()
         {
-                Console.WriteLine("Testing Matrix_Clone_CreatesDeepCopy.");
+                Matrix left = new Matrix(new double[,] { { 1, 2, 3 }, { 4, 5, 6 } });
+                Matrix right = new Matrix(new double[,] { { 7, 8 }, { 9, 10 } });
 
-                EigenvalueFinder.Core.Matrix original = new EigenvalueFinder.Core.Matrix(new double[,] { { 1.0, 2.0 }, { 3.0, 4.0 } });
+                Assert.Throws<ArgumentException>(() => { var result = left * right; });
+        }
 
-                EigenvalueFinder.Core.Matrix clone = original.Clone();
+        [Test]
+        public void Operator_Multiply_MatrixScalar_PerformsCorrectly()
+        {
+                Matrix matrix = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+                double scalar = 2.0;
+                Matrix expected = new Matrix(new double[,] { { 2, 4 }, { 6, 8 } });
 
-                Assert.Multiple(() =>
+                Matrix result = matrix * scalar;
+
+                Assert.That(result.RowCount, Is.EqualTo(2));
+                Assert.That(result.ColumnCount, Is.EqualTo(2));
+                for (int r = 0; r < result.RowCount; r++)
                 {
-                        Assert.AreNotSame(original, clone, "Cloned matrix should be a different instance.");
-                        Assert.AreEqual(original.RowCount, clone.RowCount, "Cloned matrix row count should match original.");
-                        Assert.AreEqual(original.ColumnCount, clone.ColumnCount, "Cloned matrix column count should match original.");
-                        for (int r = 0; r < original.RowCount; r++)
+                        for (int c = 0; c < result.ColumnCount; c++)
                         {
-                                for (int c = 0; c < original.ColumnCount; c++)
-                                {
-                                        Assert.AreEqual(original[r, c], clone[r, c], "Cloned matrix elements should match original.");
-                                }
+                                Assert.That(result[r, c], Is.EqualTo(expected[r, c]));
                         }
-                });
-
-                clone[0, 0] = 99.0;
-                Assert.AreNotEqual(original[0, 0], clone[0, 0], "Modifying clone should not affect original.");
-                Console.WriteLine("Matrix clone created a deep copy.");
-        }
-
-        // --- Implicit Conversion Tests ---
-
-        [Test]
-        public void Matrix_ImplicitConversionToDouble_ReturnsScalarFor1x1Matrix()
-        {
-                Console.WriteLine("Testing Matrix_ImplicitConversionToDouble_ReturnsScalarFor1x1Matrix.");
-
-                EigenvalueFinder.Core.Matrix oneByOneMatrix = new EigenvalueFinder.Core.Matrix(new double[,] { { 7.5 } });
-
-                double scalarValue = oneByOneMatrix;
-
-                Assert.AreEqual(7.5, scalarValue, 1e-9, "1x1 Matrix should implicitly convert to its single double value.");
-                Console.WriteLine($"1x1 Matrix converted to double: {scalarValue}.");
+                }
         }
 
         [Test]
-        public void Matrix_ImplicitConversionToDouble_ThrowsForNon1x1Matrix()
+        public void Operator_Multiply_ScalarMatrix_PerformsCorrectly()
         {
-                Console.WriteLine("Testing Matrix_ImplicitConversionToDouble_ThrowsForNon1x1Matrix.");
+                Matrix matrix = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+                double scalar = 2.0;
+                Matrix expected = new Matrix(new double[,] { { 2, 4 }, { 6, 8 } });
 
-                EigenvalueFinder.Core.Matrix twoByTwoMatrix = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
-                EigenvalueFinder.Core.Matrix oneByTwoMatrix = new EigenvalueFinder.Core.Matrix(new double[,] { { 1, 2 } });
-                EigenvalueFinder.Core.Matrix twoByOneMatrix = new EigenvalueFinder.Core.Matrix(new double[,] { { 1 }, { 2 } });
+                Matrix result = scalar * matrix;
 
-                Assert.Throws<InvalidCastException>(new TestDelegate(() => { double val = twoByTwoMatrix; }), "2x2 Matrix should throw on implicit conversion to double.");
-                Assert.Throws<InvalidCastException>(new TestDelegate(() => { double val = oneByTwoMatrix; }), "1x2 Matrix should throw on implicit conversion to double.");
-                Assert.Throws<InvalidCastException>(new TestDelegate(() => { double val = twoByOneMatrix; }), "2x1 Matrix should throw on implicit conversion to double.");
-                Console.WriteLine("Non-1x1 Matrix correctly threw InvalidCastException on implicit conversion to double.");
+                Assert.That(result.RowCount, Is.EqualTo(2));
+                Assert.That(result.ColumnCount, Is.EqualTo(2));
+                for (int r = 0; r < result.RowCount; r++)
+                {
+                        for (int c = 0; c < result.ColumnCount; c++)
+                        {
+                                Assert.That(result[r, c], Is.EqualTo(expected[r, c]));
+                        }
+                }
+        }
+
+        [Test]
+        public void Operator_Multiply_MatrixVector_PerformsCorrectly()
+        {
+                Matrix matrix = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+                Vector vector = new Vector(new double[] { 5, 6 });
+                Vector expected = new Vector(new double[] { 1 * 5 + 2 * 6, 3 * 5 + 4 * 6 });
+
+                Vector result = matrix * vector;
+
+                Assert.That(result.Size, Is.EqualTo(2));
+                Assert.That(result[0], Is.EqualTo(expected[0]));
+                Assert.That(result[1], Is.EqualTo(expected[1]));
+        }
+
+        [Test]
+        public void Operator_Multiply_MatrixVector_ThrowsOnIncompatibleDimensions()
+        {
+                Matrix matrix = new Matrix(new double[,] { { 1, 2, 3 }, { 4, 5, 6 } });
+                Vector vector = new Vector(new double[] { 7, 8 });
+
+                Assert.Throws<ArgumentException>(() => { var result = matrix * vector; });
+        }
+
+        [Test]
+        public void Operator_Add_MatrixMatrix_PerformsCorrectly()
+        {
+                Matrix left = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+                Matrix right = new Matrix(new double[,] { { 5, 6 }, { 7, 8 } });
+                Matrix expected = new Matrix(new double[,] { { 6, 8 }, { 10, 12 } });
+
+                Matrix result = left + right;
+
+                Assert.That(result.RowCount, Is.EqualTo(2));
+                Assert.That(result.ColumnCount, Is.EqualTo(2));
+                for (int r = 0; r < result.RowCount; r++)
+                {
+                        for (int c = 0; c < result.ColumnCount; c++)
+                        {
+                                Assert.That(result[r, c], Is.EqualTo(expected[r, c]));
+                        }
+                }
+        }
+
+        [Test]
+        public void Operator_Add_MatrixMatrix_ThrowsOnDifferentDimensions()
+        {
+                Matrix left = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+                Matrix right = new Matrix(new double[,] { { 5, 6, 7 }, { 8, 9, 10 } });
+
+                Assert.Throws<ArgumentException>(() => { var result = left + right; });
+        }
+
+        [Test]
+        public void Operator_Subtract_MatrixMatrix_PerformsCorrectly()
+        {
+                Matrix left = new Matrix(new double[,] { { 5, 6 }, { 7, 8 } });
+                Matrix right = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+                Matrix expected = new Matrix(new double[,] { { 4, 4 }, { 4, 4 } });
+
+                Matrix result = left - right;
+
+                Assert.That(result.RowCount, Is.EqualTo(2));
+                Assert.That(result.ColumnCount, Is.EqualTo(2));
+                for (int r = 0; r < result.RowCount; r++)
+                {
+                        for (int c = 0; c < result.ColumnCount; c++)
+                        {
+                                Assert.That(result[r, c], Is.EqualTo(expected[r, c]));
+                        }
+                }
+        }
+
+        [Test]
+        public void Operator_Subtract_MatrixMatrix_ThrowsOnDifferentDimensions()
+        {
+                Matrix left = new Matrix(new double[,] { { 5, 6 }, { 7, 8 } });
+                Matrix right = new Matrix(new double[,] { { 1, 2, 3 }, { 4, 5, 6 } });
+
+                Assert.Throws<ArgumentException>(() => { var result = left - right; });
+        }
+
+        [Test]
+        public void Transpose_PerformsCorrectly()
+        {
+                Matrix original = new Matrix(new double[,] { { 1, 2, 3 }, { 4, 5, 6 } });
+                Matrix expected = new Matrix(new double[,] { { 1, 4 }, { 2, 5 }, { 3, 6 } });
+
+                Matrix transposed = original.Transpose();
+
+                Assert.That(transposed.RowCount, Is.EqualTo(3));
+                Assert.That(transposed.ColumnCount, Is.EqualTo(2));
+                for (int r = 0; r < transposed.RowCount; r++)
+                {
+                        for (int c = 0; c < transposed.ColumnCount; c++)
+                        {
+                                Assert.That(transposed[r, c], Is.EqualTo(expected[r, c]));
+                        }
+                }
+        }
+
+        [Test]
+        public void Transpose_SquareMatrix_PerformsCorrectly()
+        {
+                Matrix original = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+                Matrix expected = new Matrix(new double[,] { { 1, 3 }, { 2, 4 } });
+
+                Matrix transposed = original.Transpose();
+
+                Assert.That(transposed.RowCount, Is.EqualTo(2));
+                Assert.That(transposed.ColumnCount, Is.EqualTo(2));
+                for (int r = 0; r < transposed.RowCount; r++)
+                {
+                        for (int c = 0; c < transposed.ColumnCount; c++)
+                        {
+                                Assert.That(transposed[r, c], Is.EqualTo(expected[r, c]));
+                        }
+                }
+        }
+
+        [Test]
+        public void Clone_CreatesDeepCopy()
+        {
+                Matrix original = new Matrix(new double[,] { { 1, 2 }, { 3, 4 } });
+
+                Matrix clone = original.Clone();
+
+                Assert.That(clone, Is.Not.SameAs(original));
+                Assert.That(clone.RowCount, Is.EqualTo(original.RowCount));
+                Assert.That(clone.ColumnCount, Is.EqualTo(original.ColumnCount));
+                for (int r = 0; r < original.RowCount; r++)
+                {
+                        for (int c = 0; c < original.ColumnCount; c++)
+                        {
+                                Assert.That(clone[r, c], Is.EqualTo(original[r, c]));
+                        }
+                }
+
+                original[0, 0] = 99.0;
+                Assert.That(clone[0, 0], Is.Not.EqualTo(99.0));
+        }
+
+        [Test]
+        public void ToDenseMatrix_ReturnsInternalDenseMatrix()
+        {
+                MathNet.Numerics.LinearAlgebra.Double.DenseMatrix denseMatrix = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.OfArray(new double[,] { { 1.0, 2.0 } });
+                Matrix matrix = new Matrix(denseMatrix);
+
+                MathNet.Numerics.LinearAlgebra.Double.DenseMatrix retrievedDenseMatrix = matrix.ToDenseMatrix();
+
+                Assert.That(retrievedDenseMatrix, Is.SameAs(denseMatrix));
+        }
+
+        [Test]
+        public void ImplicitConversion_ToDouble_1x1Matrix_ReturnsCorrectValue()
+        {
+                Matrix matrix = new Matrix(new double[,] { { 42.0 } });
+
+                double value = matrix;
+
+                Assert.That(value, Is.EqualTo(42.0));
+        }
+
+        [Test]
+        public void ImplicitConversion_ToDouble_ThrowsOnNon1x1Matrix()
+        {
+                Matrix matrix2x2 = new Matrix(new double[,] { { 1.0, 2.0 }, { 3.0, 4.0 } });
+                Matrix matrix1x2 = new Matrix(new double[,] { { 1.0, 2.0 } });
+                Matrix matrix2x1 = new Matrix(new double[,] { { 1.0 }, { 2.0 } });
+
+                Assert.Throws<InvalidCastException>(() => { double val = matrix2x2; });
+                Assert.Throws<InvalidCastException>(() => { double val = matrix1x2; });
+                Assert.Throws<InvalidCastException>(() => { double val = matrix2x1; });
+        }
+
+        [Test]
+        public void ImplicitConversion_ToDouble_ThrowsOnNullMatrix()
+        {
+                Matrix matrix = null;
+
+                Assert.Throws<ArgumentNullException>(() => { double val = matrix; });
+        }
+
+        [Test]
+        public void ToString_ReturnsFormattedString()
+        {
+                Matrix matrix = new Matrix(new double[,] { { 1.23456, 2.34567 }, { 3.45678, 4.56789 } });
+                string expected = "1,2346\t2,3457\t" + Environment.NewLine +
+                                  "3,4568\t4,5679\t" + Environment.NewLine;
+
+                string actual = matrix.ToString();
+
+                Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ToString_EmptyMatrix()
+        {
+                Matrix matrix = new Matrix(1, 1);
+                matrix[0, 0] = 0.0;
+                string expected = "0,0000\t" + Environment.NewLine;
+                string actual = matrix.ToString();
+                Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ToString_SingleElementMatrix()
+        {
+                Matrix matrix = new Matrix(new double[,] { { 7.89 } });
+                string expected = "7,8900\t" + Environment.NewLine;
+                string actual = matrix.ToString();
+                Assert.That(actual, Is.EqualTo(expected));
         }
 }

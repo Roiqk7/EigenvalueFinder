@@ -1,367 +1,451 @@
 using NUnit.Framework;
 using EigenvalueFinder.Core;
 using System;
+using System.Text;
 
 namespace EigenvalueFinder.Tests;
 
 [TestFixture]
 public class VectorTests
 {
-
-        // --- Constructor Tests ---
-
         [Test]
-        public void Vector_Constructor_CreatesColumnVector_WithCorrectSizeAndZeros()
+        public void Constructor_Size_ColumnVector_CreatesZeroVector()
         {
-                Console.WriteLine("Testing Vector_Constructor_CreatesColumnVector_WithCorrectSizeAndZeros.");
-
                 int size = 5;
+                Vector vector = new Vector(size, VectorType.Column);
 
-
-                EigenvalueFinder.Core.Vector vector = new EigenvalueFinder.Core.Vector(size);
-
-                Assert.Multiple(() =>
+                Assert.That(vector.Size, Is.EqualTo(size));
+                Assert.That(vector.Type, Is.EqualTo(VectorType.Column));
+                Assert.That(vector.RowCount, Is.EqualTo(size));
+                Assert.That(vector.ColumnCount, Is.EqualTo(1));
+                for (int i = 0; i < size; i++)
                 {
-                        Assert.AreEqual(size, vector.Size, "Vector size should match constructor argument.");
-                        Assert.AreEqual(VectorType.Column, vector.Type, "Vector type should be Column by default.");
-                        Assert.AreEqual(size, vector.RowCount, "Column vector RowCount should be its size.");
-                        Assert.AreEqual(1, vector.ColumnCount, "Column vector ColumnCount should be 1.");
-                        for (int i = 0; i < size; i++)
-                        {
-                                Assert.AreEqual(0.0, vector[i], "All elements should be initialized to zero.");
-                        }
-                });
-                Console.WriteLine($"Column vector of size {size} created successfully.");
+                        Assert.That(vector[i], Is.EqualTo(0.0));
+                }
         }
 
         [Test]
-        public void Vector_Constructor_CreatesRowVector_WithCorrectSizeAndZeros()
+        public void Constructor_Size_RowVector_CreatesZeroVector()
         {
-                Console.WriteLine("Testing Vector_Constructor_CreatesRowVector_WithCorrectSizeAndZeros.");
+                int size = 5;
+                Vector vector = new Vector(size, VectorType.Row);
 
-                int size = 3;
-
-                EigenvalueFinder.Core.Vector vector = new EigenvalueFinder.Core.Vector(size, VectorType.Row);
-
-                Assert.Multiple(() =>
+                Assert.That(vector.Size, Is.EqualTo(size));
+                Assert.That(vector.Type, Is.EqualTo(VectorType.Row));
+                Assert.That(vector.RowCount, Is.EqualTo(1));
+                Assert.That(vector.ColumnCount, Is.EqualTo(size));
+                for (int i = 0; i < size; i++)
                 {
-                        Assert.AreEqual(size, vector.Size, "Vector size should match constructor argument.");
-                        Assert.AreEqual(VectorType.Row, vector.Type, "Vector type should be Row.");
-                        Assert.AreEqual(1, vector.RowCount, "Row vector RowCount should be 1.");
-                        Assert.AreEqual(size, vector.ColumnCount, "Row vector ColumnCount should be its size.");
-                        for (int i = 0; i < size; i++)
-                        {
-                                Assert.AreEqual(0.0, vector[i], "All elements should be initialized to zero.");
-                        }
-                });
-                Console.WriteLine($"Row vector of size {size} created successfully.");
+                        Assert.That(vector[i], Is.EqualTo(0.0));
+                }
         }
 
         [Test]
-        public void Vector_Constructor_FromArray_CreatesCorrectVectorAndType()
+        public void Constructor_Size_ThrowsOnNonPositiveSize()
         {
-                Console.WriteLine("Testing Vector_Constructor_FromArray_CreatesCorrectVectorAndType.");
+                Assert.Throws<ArgumentOutOfRangeException>(() => new Vector(0));
+                Assert.Throws<ArgumentOutOfRangeException>(() => new Vector(-1));
+        }
 
+        [Test]
+        public void Constructor_DataArray_ColumnVector_CreatesCorrectVector()
+        {
                 double[] data = { 1.0, 2.0, 3.0 };
+                Vector vector = new Vector(data, VectorType.Column);
 
-                EigenvalueFinder.Core.Vector colVector = new EigenvalueFinder.Core.Vector(data, VectorType.Column);
-                EigenvalueFinder.Core.Vector rowVector = new EigenvalueFinder.Core.Vector(data, VectorType.Row);
-
-                Assert.Multiple(() =>
+                Assert.That(vector.Size, Is.EqualTo(data.Length));
+                Assert.That(vector.Type, Is.EqualTo(VectorType.Column));
+                Assert.That(vector.RowCount, Is.EqualTo(data.Length));
+                Assert.That(vector.ColumnCount, Is.EqualTo(1));
+                for (int i = 0; i < data.Length; i++)
                 {
-                        Assert.AreEqual(data.Length, colVector.Size);
-                        Assert.AreEqual(VectorType.Column, colVector.Type);
-                        for (int i = 0; i < data.Length; i++)
-                        {
-                                Assert.AreEqual(data[i], colVector[i]);
-                        }
-                });
-                Console.WriteLine("Column vector from array created successfully.");
+                        Assert.That(vector[i], Is.EqualTo(data[i]));
+                }
+        }
 
-                Assert.Multiple(() =>
+        [Test]
+        public void Constructor_DataArray_RowVector_CreatesCorrectVector()
+        {
+                double[] data = { 1.0, 2.0, 3.0 };
+                Vector vector = new Vector(data, VectorType.Row);
+
+                Assert.That(vector.Size, Is.EqualTo(data.Length));
+                Assert.That(vector.Type, Is.EqualTo(VectorType.Row));
+                Assert.That(vector.RowCount, Is.EqualTo(1));
+                Assert.That(vector.ColumnCount, Is.EqualTo(data.Length));
+                for (int i = 0; i < data.Length; i++)
                 {
-                        Assert.AreEqual(data.Length, rowVector.Size);
-                        Assert.AreEqual(VectorType.Row, rowVector.Type);
-                        for (int i = 0; i < data.Length; i++)
-                        {
-                                Assert.AreEqual(data[i], rowVector[i]);
-                        }
-                });
-                Console.WriteLine("Row vector from array created successfully.");
+                        Assert.That(vector[i], Is.EqualTo(data[i]));
+                }
         }
 
         [Test]
-        public void Vector_Constructor_ThrowsOnNonPositiveSize()
+        public void Constructor_DataArray_ThrowsOnNullData()
         {
-                Console.WriteLine("Testing Vector_Constructor_ThrowsOnNonPositiveSize.");
-
-                Assert.Throws<ArgumentOutOfRangeException>(new TestDelegate(() => new EigenvalueFinder.Core.Vector(0)), "Constructor should throw for zero size.");
-                Assert.Throws<ArgumentOutOfRangeException>(new TestDelegate(() => new EigenvalueFinder.Core.Vector(-1)), "Constructor should throw for negative size.");
-                Console.WriteLine("Constructor correctly threw exceptions for invalid sizes.");
-        }
-
-        // --- Indexer Tests ---
-
-        [Test]
-        public void Vector_Indexer_SetAndGetValue_ColumnVector()
-        {
-                Console.WriteLine("Testing Vector_Indexer_SetAndGetValue_ColumnVector.");
-
-                EigenvalueFinder.Core.Vector vector = new EigenvalueFinder.Core.Vector(3, VectorType.Column);
-                double value = 7.89;
-                int index = 1;
-
-                vector[index] = value;
-                double retrievedValue = vector[index];
-
-                Assert.AreEqual(value, retrievedValue, "Indexer should correctly set and retrieve value for column vector.");
-                Console.WriteLine($"Column vector element at {index} set to {value}.");
+                double[] data = null;
+                Assert.Throws<ArgumentNullException>(() => new Vector(data));
         }
 
         [Test]
-        public void Vector_Indexer_SetAndGetValue_RowVector()
+        public void Constructor_DenseMatrix_ColumnVector_WrapsCorrectly()
         {
-                Console.WriteLine("Testing Vector_Indexer_SetAndGetValue_RowVector.");
+                MathNet.Numerics.LinearAlgebra.Double.DenseMatrix denseMatrix = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.OfArray(new double[,] { { 1.0 }, { 2.0 }, { 3.0 } });
+                Vector vector = new Vector(denseMatrix);
 
-                EigenvalueFinder.Core.Vector vector = new EigenvalueFinder.Core.Vector(3, VectorType.Row);
-                double value = 7.89;
-                int index = 1;
-
-                vector[index] = value;
-                double retrievedValue = vector[index];
-
-                Assert.AreEqual(value, retrievedValue, "Indexer should correctly set and retrieve value for row vector.");
-                Console.WriteLine($"Row vector element at {index} set to {value}.");
-        }
-
-        // --- Vector Operations ---
-
-        [Test]
-        public void Vector_DotProduct_PerformsCorrectly()
-        {
-                Console.WriteLine("Testing Vector_DotProduct_PerformsCorrectly.");
-
-                EigenvalueFinder.Core.Vector v1 = new EigenvalueFinder.Core.Vector(new double[] { 1, 2, 3 }, VectorType.Column);
-                EigenvalueFinder.Core.Vector v2 = new EigenvalueFinder.Core.Vector(new double[] { 4, 5, 6 }, VectorType.Column);
-                double expectedDotProduct = 1 * 4 + 2 * 5 + 3 * 6; // 4 + 10 + 18 = 32
-
-                double dotProduct = v1.DotProduct(v2);
-
-                Assert.AreEqual(expectedDotProduct, dotProduct, 1e-9, "Dot product should be calculated correctly.");
-                Console.WriteLine($"Dot product of {v1.ToString()} and {v2.ToString()} is {dotProduct}.");
-
-                EigenvalueFinder.Core.Vector v3 = new EigenvalueFinder.Core.Vector(new double[] { 1, 2 }, VectorType.Row);
-                EigenvalueFinder.Core.Vector v4 = new EigenvalueFinder.Core.Vector(new double[] { 3, 4 }, VectorType.Row);
-                double expectedDotProduct2 = 1 * 3 + 2 * 4; // 3 + 8 = 11
-                double dotProduct2 = v3.DotProduct(v4);
-                Assert.AreEqual(expectedDotProduct2, dotProduct2, 1e-9, "Dot product with row vectors should be correct.");
-                Console.WriteLine($"Dot product of {v3.ToString()} and {v4.ToString()} is {dotProduct2}.");
-
-                EigenvalueFinder.Core.Vector v5 = new EigenvalueFinder.Core.Vector(new double[] { 1, 2, 3 }, VectorType.Row);
-                EigenvalueFinder.Core.Vector v6 = new EigenvalueFinder.Core.Vector(new double[] { 4, 5, 6 }, VectorType.Column);
-                double mixedDotProduct = v5.DotProduct(v6);
-                Assert.AreEqual(expectedDotProduct, mixedDotProduct, 1e-9, "Dot product with mixed types should be correct.");
-                Console.WriteLine($"Dot product of {v5.ToString()} and {v6.ToString()} (mixed types) is {mixedDotProduct}.");
-
-                EigenvalueFinder.Core.Vector v7 = new EigenvalueFinder.Core.Vector(new double[] { 1, 2 });
-                EigenvalueFinder.Core.Vector v8 = new EigenvalueFinder.Core.Vector(new double[] { 1, 2, 3 });
-                Assert.Throws<ArgumentException>(new TestDelegate(() => v7.DotProduct(v8)), "Dot product should throw for different sized vectors.");
-                Console.WriteLine("Dot product correctly threw for different sized vectors.");
+                Assert.That(vector.Size, Is.EqualTo(3));
+                Assert.That(vector.Type, Is.EqualTo(VectorType.Column));
+                Assert.That(vector[0], Is.EqualTo(1.0));
+                Assert.That(vector[1], Is.EqualTo(2.0));
+                Assert.That(vector[2], Is.EqualTo(3.0));
         }
 
         [Test]
-        public void Vector_L2Norm_PerformsCorrectly()
+        public void Constructor_DenseMatrix_RowVector_WrapsCorrectly()
         {
-                Console.WriteLine("Testing Vector_L2Norm_PerformsCorrectly.");
+                MathNet.Numerics.LinearAlgebra.Double.DenseMatrix denseMatrix = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.OfArray(new double[,] { { 1.0, 2.0, 3.0 } });
+                Vector vector = new Vector(denseMatrix);
 
-                EigenvalueFinder.Core.Vector v = new EigenvalueFinder.Core.Vector(new double[] { 3, 4, 0 }, VectorType.Column);
-                double expectedNorm = Math.Sqrt(3 * 3 + 4 * 4 + 0 * 0); // Sqrt(9 + 16 + 0) = Sqrt(25) = 5
-
-
-                double norm = v.L2Norm();
-
-
-                Assert.AreEqual(expectedNorm, norm, 1e-9, "L2 Norm should be calculated correctly.");
-                Console.WriteLine($"L2 Norm of {v.ToString()} is {norm}.");
-
-                EigenvalueFinder.Core.Vector vr = new EigenvalueFinder.Core.Vector(new double[] { -1, 1 }, VectorType.Row);
-                double expectedNormR = Math.Sqrt((-1) * (-1) + 1 * 1); // Sqrt(1 + 1) = Sqrt(2)
-                double normR = vr.L2Norm();
-                Assert.AreEqual(expectedNormR, normR, 1e-9, "L2 Norm of row vector should be calculated correctly.");
-                Console.WriteLine($"L2 Norm of {vr.ToString()} is {normR}.");
+                Assert.That(vector.Size, Is.EqualTo(3));
+                Assert.That(vector.Type, Is.EqualTo(VectorType.Row));
+                Assert.That(vector[0], Is.EqualTo(1.0));
+                Assert.That(vector[1], Is.EqualTo(2.0));
+                Assert.That(vector[2], Is.EqualTo(3.0));
         }
 
         [Test]
-        public void Vector_Normalize_PerformsCorrectly()
+        public void Constructor_DenseMatrix_ThrowsOnNullDenseMatrix()
         {
-                Console.WriteLine("Testing Vector_Normalize_PerformsCorrectly.");
+                MathNet.Numerics.LinearAlgebra.Double.DenseMatrix denseMatrix = null;
+                Assert.Throws<ArgumentNullException>(() => new Vector(denseMatrix));
+        }
 
-                EigenvalueFinder.Core.Vector v = new EigenvalueFinder.Core.Vector(new double[] { 3, 4, 0 }, VectorType.Column); // Norm is 5
-                EigenvalueFinder.Core.Vector expectedNormalized = new EigenvalueFinder.Core.Vector(new double[] { 0.6, 0.8, 0.0 }, VectorType.Column);
+        [Test]
+        public void Constructor_DenseMatrix_ThrowsOnNonVectorMatrix()
+        {
+                MathNet.Numerics.LinearAlgebra.Double.DenseMatrix denseMatrix = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.OfArray(new double[,] { { 1.0, 2.0 }, { 3.0, 4.0 } });
+                Assert.Throws<ArgumentException>(() => new Vector(denseMatrix));
+        }
 
+        [Test]
+        public void Indexer_GetAndSet_WorksCorrectly()
+        {
+                Vector vector = new Vector(3);
+                vector[0] = 10.0;
+                vector[1] = 20.0;
+                vector[2] = 30.0;
 
-                EigenvalueFinder.Core.Vector normalizedV = v.Normalize();
+                Assert.That(vector[0], Is.EqualTo(10.0));
+                Assert.That(vector[1], Is.EqualTo(20.0));
+                Assert.That(vector[2], Is.EqualTo(30.0));
+        }
 
+        [Test]
+        public void Indexer_Get_ThrowsOnOutOfRange()
+        {
+                Vector vector = new Vector(3);
+                Assert.Throws<ArgumentOutOfRangeException>(() => { var val = vector[3]; });
+                Assert.Throws<ArgumentOutOfRangeException>(() => { var val = vector[-1]; });
+        }
 
-                Assert.Multiple(() =>
+        [Test]
+        public void Indexer_Set_ThrowsOnOutOfRange()
+        {
+                Vector vector = new Vector(3);
+                Assert.Throws<ArgumentOutOfRangeException>(() => vector[3] = 1.0);
+                Assert.Throws<ArgumentOutOfRangeException>(() => vector[-1] = 1.0);
+        }
+
+        [Test]
+        public void Operator_Multiply_ScalarVector_PerformsCorrectly()
+        {
+                Vector vector = new Vector(new double[] { 1.0, 2.0, 3.0 });
+                double scalar = 2.0;
+                Vector expected = new Vector(new double[] { 2.0, 4.0, 6.0 });
+
+                Vector result = scalar * vector;
+
+                Assert.That(result.Size, Is.EqualTo(expected.Size));
+                for (int i = 0; i < result.Size; i++)
                 {
-                        Assert.AreEqual(v.Size, normalizedV.Size, "Normalized vector should have the same size.");
-                        Assert.AreEqual(v.Type, normalizedV.Type, "Normalized vector should have the same type."); // Should preserve type
-                        Assert.AreEqual(1.0, normalizedV.L2Norm(), 1e-9, "Normalized vector should have L2 Norm of 1.");
-                        for (int i = 0; i < v.Size; i++)
-                        {
-                                Assert.AreEqual(expectedNormalized[i], normalizedV[i], 1e-9, $"Element {i} of normalized vector incorrect.");
-                        }
-                });
-                Console.WriteLine($"Vector {v.ToString()} normalized to {normalizedV.ToString()}.");
-
-                EigenvalueFinder.Core.Vector zeroVector = new EigenvalueFinder.Core.Vector(3);
-
-                Assert.Throws<InvalidOperationException>(() =>
-                {
-                        zeroVector.Normalize();
-                }, "Normalizing a zero vector should throw an InvalidOperationException.");
-
-                Console.WriteLine("Zero vector correctly threw InvalidOperationException on normalize.");
+                        Assert.That(result[i], Is.EqualTo(expected[i]));
+                }
         }
 
         [Test]
-        public void Vector_Transpose_ChangesVectorTypeAndDimensions()
+        public void Operator_Multiply_VectorScalar_PerformsCorrectly()
         {
-                Console.WriteLine("Testing Vector_Transpose_ChangesVectorTypeAndDimensions.");
+                Vector vector = new Vector(new double[] { 1.0, 2.0, 3.0 });
+                double scalar = 2.0;
+                Vector expected = new Vector(new double[] { 2.0, 4.0, 6.0 });
 
-                EigenvalueFinder.Core.Vector colVector = new EigenvalueFinder.Core.Vector(new double[] { 1, 2, 3 }, VectorType.Column); // 3x1
-                EigenvalueFinder.Core.Vector rowVector = new EigenvalueFinder.Core.Vector(new double[] { 4, 5 }, VectorType.Row);       // 1x2
+                Vector result = vector * scalar;
 
-
-                EigenvalueFinder.Core.Vector transposedCol = colVector.Transpose();
-                EigenvalueFinder.Core.Vector transposedRow = rowVector.Transpose();
-
-                Assert.Multiple(() =>
+                Assert.That(result.Size, Is.EqualTo(expected.Size));
+                for (int i = 0; i < result.Size; i++)
                 {
-                        Assert.AreNotSame(colVector, transposedCol, "Transposed vector should be a new instance.");
-                        Assert.AreEqual(colVector.Size, transposedCol.Size, "Size should remain the same after transpose.");
-                        Assert.AreEqual(VectorType.Row, transposedCol.Type, "Column vector should become Row vector after transpose.");
-                        Assert.AreEqual(1, transposedCol.RowCount, "Transposed column vector RowCount should be 1.");
-                        Assert.AreEqual(colVector.Size, transposedCol.ColumnCount, "Transposed column vector ColumnCount should be its size.");
-                        for (int i = 0; i < colVector.Size; i++)
-                        {
-                                Assert.AreEqual(colVector[i], transposedCol[i], "Elements should match for transposed vector.");
-                        }
-                });
-                Console.WriteLine($"Column vector {colVector.ToString()} transposed to Row vector {transposedCol.ToString()}.");
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreNotSame(rowVector, transposedRow, "Transposed vector should be a new instance.");
-                        Assert.AreEqual(rowVector.Size, transposedRow.Size, "Size should remain the same after transpose.");
-                        Assert.AreEqual(VectorType.Column, transposedRow.Type, "Row vector should become Column vector after transpose.");
-                        Assert.AreEqual(rowVector.Size, transposedRow.RowCount, "Transposed row vector RowCount should be its size.");
-                        Assert.AreEqual(1, transposedRow.ColumnCount, "Transposed row vector ColumnCount should be 1.");
-                        for (int i = 0; i < rowVector.Size; i++)
-                        {
-                                Assert.AreEqual(rowVector[i], transposedRow[i], "Elements should match for transposed vector.");
-                        }
-                });
-                Console.WriteLine($"Row vector {rowVector.ToString()} transposed to Column vector {transposedRow.ToString()}.");
+                        Assert.That(result[i], Is.EqualTo(expected[i]));
+                }
         }
 
         [Test]
-        public void Vector_Clone_CreatesDeepCopyAndPreservesType()
+        public void Operator_Multiply_VectorVector_ColumnTimesRow_PerformsOuterProduct()
         {
-                Console.WriteLine("Testing Vector_Clone_CreatesDeepCopyAndPreservesType.");
+                Vector left = new Vector(new double[] { 1, 2 }, VectorType.Column);
+                Vector right = new Vector(new double[] { 3, 4 }, VectorType.Row);
+                Matrix expected = new Matrix(new double[,] { { 3, 4 }, { 6, 8 } });
 
-                EigenvalueFinder.Core.Vector originalCol = new EigenvalueFinder.Core.Vector(new double[] { 1.0, 2.0, 3.0 }, VectorType.Column);
-                EigenvalueFinder.Core.Vector originalRow = new EigenvalueFinder.Core.Vector(new double[] { 4.0, 5.0 }, VectorType.Row);
+                Matrix result = left * right;
 
-
-                EigenvalueFinder.Core.Vector clonedCol = originalCol.Clone();
-                EigenvalueFinder.Core.Vector clonedRow = originalRow.Clone();
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreNotSame(originalCol, clonedCol, "Cloned column vector should be a different instance.");
-                        Assert.AreEqual(originalCol.Size, clonedCol.Size, "Cloned column vector size should match original.");
-                        Assert.AreEqual(originalCol.Type, clonedCol.Type, "Cloned column vector type should match original.");
-                        for (int i = 0; i < originalCol.Size; i++)
-                        {
-                                Assert.AreEqual(originalCol[i], clonedCol[i], "Cloned column vector elements should match original.");
-                        }
-                });
-                Console.WriteLine($"Column vector clone created: {clonedCol.ToString()}.");
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreNotSame(originalRow, clonedRow, "Cloned row vector should be a different instance.");
-                        Assert.AreEqual(originalRow.Size, clonedRow.Size, "Cloned row vector size should match original.");
-                        Assert.AreEqual(originalRow.Type, clonedRow.Type, "Cloned row vector type should match original.");
-                        for (int i = 0; i < originalRow.Size; i++)
-                        {
-                                Assert.AreEqual(originalRow[i], clonedRow[i], "Cloned row vector elements should match original.");
-                        }
-                });
-                Console.WriteLine($"Row vector clone created: {clonedRow.ToString()}.");
-
-                clonedCol[0] = 99.0;
-                Assert.AreNotEqual(originalCol[0], clonedCol[0], "Modifying cloned column vector should not affect original.");
-                Console.WriteLine("Vector clone created a deep copy.");
+                Assert.That(result.RowCount, Is.EqualTo(2));
+                Assert.That(result.ColumnCount, Is.EqualTo(2));
+                Assert.That(result[0, 0], Is.EqualTo(expected[0, 0]));
+                Assert.That(result[0, 1], Is.EqualTo(expected[0, 1]));
+                Assert.That(result[1, 0], Is.EqualTo(expected[1, 0]));
+                Assert.That(result[1, 1], Is.EqualTo(expected[1, 1]));
         }
 
         [Test]
-        public void Vector_OperatorMultiply_VectorByVector_DotProductMatrix()
+        public void Operator_Multiply_VectorVector_RowTimesColumn_PerformsDotProductAsMatrix()
         {
-                Console.WriteLine("Testing Vector_OperatorMultiply_VectorByVector_DotProductMatrix.");
+                Vector left = new Vector(new double[] { 1, 2 }, VectorType.Row);
+                Vector right = new Vector(new double[] { 3, 4 }, VectorType.Column);
+                Matrix expected = new Matrix(new double[,] { { 1 * 3 + 2 * 4 } });
 
-                EigenvalueFinder.Core.Vector left = new EigenvalueFinder.Core.Vector(new double[] { 1, 2, 3 }, VectorType.Row); // 1x3
-                EigenvalueFinder.Core.Vector right = new EigenvalueFinder.Core.Vector(new double[] { 4, 5, 6 }, VectorType.Column); // 3x1
-                double expectedDotProduct = 32.0;
+                Matrix result = left * right;
 
-                EigenvalueFinder.Core.Matrix resultMatrix = left * right; // Should be a 1x1 Matrix representing dot product
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreEqual(1, resultMatrix.RowCount);
-                        Assert.AreEqual(1, resultMatrix.ColumnCount);
-                        Assert.AreEqual(expectedDotProduct, resultMatrix[0, 0], 1e-9);
-                });
-                Console.WriteLine($"Vector * Vector (dot product) result: {resultMatrix[0,0]}");
+                Assert.That(result.RowCount, Is.EqualTo(1));
+                Assert.That(result.ColumnCount, Is.EqualTo(1));
+                Assert.That(result[0, 0], Is.EqualTo(expected[0, 0]));
         }
 
         [Test]
-        public void Vector_OperatorMultiply_VectorByVector_OuterProductMatrix()
+        public void Operator_Multiply_VectorVector_ThrowsOnIncompatibleDimensions()
         {
-                Console.WriteLine("Testing Vector_OperatorMultiply_VectorByVector_OuterProductMatrix.");
-
-                EigenvalueFinder.Core.Vector left = new EigenvalueFinder.Core.Vector(new double[] { 1, 2 }, VectorType.Column); // 2x1
-                EigenvalueFinder.Core.Vector right = new EigenvalueFinder.Core.Vector(new double[] { 3, 4 }, VectorType.Row); // 1x2
-                EigenvalueFinder.Core.Matrix expectedOuterProduct = new EigenvalueFinder.Core.Matrix(new double[,] {
-                    { 1*3, 1*4 },
-                    { 2*3, 2*4 }
-                }); // 2x2: {{3,4},{6,8}}
-
-                EigenvalueFinder.Core.Matrix resultMatrix = left * right; // Should be a 2x2 Matrix (outer product)
-
-                Assert.Multiple(() =>
-                {
-                        Assert.AreEqual(2, resultMatrix.RowCount);
-                        Assert.AreEqual(2, resultMatrix.ColumnCount);
-                        Assert.AreEqual(expectedOuterProduct[0,0], resultMatrix[0,0], 1e-9);
-                        Assert.AreEqual(expectedOuterProduct[0,1], resultMatrix[0,1], 1e-9);
-                        Assert.AreEqual(expectedOuterProduct[1,0], resultMatrix[1,0], 1e-9);
-                        Assert.AreEqual(expectedOuterProduct[1,1], resultMatrix[1,1], 1e-9);
-                });
-                Console.WriteLine($"Vector * Vector (outer product) result: {resultMatrix.ToString()}");
+                Vector left = new Vector(new double[] { 1, 2 }, VectorType.Column);
+                Vector right = new Vector(new double[] { 3, 4 }, VectorType.Column);
+                Assert.Throws<ArgumentException>(() => { var result = left * right; });
         }
 
         [Test]
-        public void Vector_OperatorMultiply_VectorByVector_ThrowsForIncompatibleSizes()
+        public void Operator_Add_Vectors_PerformsCorrectly()
         {
-                Console.WriteLine("Testing Vector_OperatorMultiply_VectorByVector_ThrowsForIncompatibleSizes.");
+                Vector left = new Vector(new double[] { 1.0, 2.0, 3.0 });
+                Vector right = new Vector(new double[] { 4.0, 5.0, 6.0 });
+                Vector expected = new Vector(new double[] { 5.0, 7.0, 9.0 });
 
-                EigenvalueFinder.Core.Vector left = new EigenvalueFinder.Core.Vector(new double[] { 1, 2, 3 }, VectorType.Column); // 3x1
-                EigenvalueFinder.Core.Vector right = new EigenvalueFinder.Core.Vector(new double[] { 4, 5 }, VectorType.Column); // 2x1 (incompatible)
+                Vector result = left + right;
 
-                Assert.Throws<ArgumentException>(new TestDelegate(() => { EigenvalueFinder.Core.Matrix result = left * right; }), "Vector * Vector should throw for incompatible dimensions.");
-                Console.WriteLine("Vector * Vector correctly threw for incompatible sizes.");
+                Assert.That(result.Size, Is.EqualTo(expected.Size));
+                for (int i = 0; i < result.Size; i++)
+                {
+                        Assert.That(result[i], Is.EqualTo(expected[i]));
+                }
+        }
+
+        [Test]
+        public void Operator_Add_Vectors_ThrowsOnDifferentSizes()
+        {
+                Vector left = new Vector(new double[] { 1.0, 2.0 });
+                Vector right = new Vector(new double[] { 4.0, 5.0, 6.0 });
+
+                Assert.Throws<ArgumentException>(() => { var result = left + right; });
+        }
+
+        [Test]
+        public void Operator_Add_Vectors_ThrowsOnDifferentTypes()
+        {
+                Vector left = new Vector(new double[] { 1.0, 2.0 }, VectorType.Column);
+                Vector right = new Vector(new double[] { 1.0, 2.0 }, VectorType.Row);
+
+                Assert.Throws<ArgumentException>(() => { var result = left + right; });
+        }
+
+        [Test]
+        public void Operator_Subtract_Vectors_PerformsCorrectly()
+        {
+                Vector left = new Vector(new double[] { 5.0, 7.0, 9.0 });
+                Vector right = new Vector(new double[] { 4.0, 5.0, 6.0 });
+                Vector expected = new Vector(new double[] { 1.0, 2.0, 3.0 });
+
+                Vector result = left - right;
+
+                Assert.That(result.Size, Is.EqualTo(expected.Size));
+                for (int i = 0; i < result.Size; i++)
+                {
+                        Assert.That(result[i], Is.EqualTo(expected[i]));
+                }
+        }
+
+        [Test]
+        public void Operator_Subtract_Vectors_ThrowsOnDifferentSizes()
+        {
+                Vector left = new Vector(new double[] { 5.0, 7.0 });
+                Vector right = new Vector(new double[] { 4.0, 5.0, 6.0 });
+
+                Assert.Throws<ArgumentException>(() => { var result = left - right; });
+        }
+
+        [Test]
+        public void Operator_Subtract_Vectors_ThrowsOnDifferentTypes()
+        {
+                Vector left = new Vector(new double[] { 1.0, 2.0 }, VectorType.Column);
+                Vector right = new Vector(new double[] { 1.0, 2.0 }, VectorType.Row);
+
+                Assert.Throws<ArgumentException>(() => { var result = left - right; });
+        }
+
+        [Test]
+        public void DotProduct_PerformsCorrectly()
+        {
+                Vector v1 = new Vector(new double[] { 1.0, 2.0, 3.0 });
+                Vector v2 = new Vector(new double[] { 4.0, 5.0, 6.0 });
+                double expectedDotProduct = (1.0 * 4.0) + (2.0 * 5.0) + (3.0 * 6.0);
+
+                double actualDotProduct = v1.DotProduct(v2);
+
+                Assert.That(actualDotProduct, Is.EqualTo(expectedDotProduct));
+        }
+
+        [Test]
+        public void DotProduct_ColumnAndRowVector_PerformsCorrectly()
+        {
+                Vector v1 = new Vector(new double[] { 1.0, 2.0 }, VectorType.Column);
+                Vector v2 = new Vector(new double[] { 3.0, 4.0 }, VectorType.Row);
+                double expectedDotProduct = (1.0 * 3.0) + (2.0 * 4.0);
+
+                double actualDotProduct = v1.DotProduct(v2);
+
+                Assert.That(actualDotProduct, Is.EqualTo(expectedDotProduct));
+        }
+
+        [Test]
+        public void DotProduct_ThrowsOnDifferentSizes()
+        {
+                Vector v1 = new Vector(new double[] { 1.0, 2.0 });
+                Vector v2 = new Vector(new double[] { 4.0, 5.0, 6.0 });
+
+                Assert.Throws<ArgumentException>(() => v1.DotProduct(v2));
+        }
+
+        [Test]
+        public void L2Norm_CalculatesCorrectly()
+        {
+                Vector vector = new Vector(new double[] { 3.0, 4.0 });
+                double expectedNorm = 5.0;
+
+                double actualNorm = vector.L2Norm();
+
+                Assert.That(actualNorm, Is.EqualTo(expectedNorm));
+        }
+
+        [Test]
+        public void L2Norm_ZeroVector_ReturnsZero()
+        {
+                Vector vector = new Vector(new double[] { 0.0, 0.0, 0.0 });
+                double expectedNorm = 0.0;
+
+                double actualNorm = vector.L2Norm();
+
+                Assert.That(actualNorm, Is.EqualTo(expectedNorm));
+        }
+
+        [Test]
+        public void Normalize_PerformsCorrectly()
+        {
+                Vector vector = new Vector(new double[] { 3.0, 4.0 });
+                Vector expected = new Vector(new double[] { 3.0 / 5.0, 4.0 / 5.0 });
+
+                Vector normalizedVector = vector.Normalize();
+
+                Assert.That(normalizedVector.Size, Is.EqualTo(expected.Size));
+                Assert.That(normalizedVector[0], Is.EqualTo(expected[0]).Within(0.00001));
+                Assert.That(normalizedVector[1], Is.EqualTo(expected[1]).Within(0.00001));
+                Assert.That(normalizedVector.L2Norm(), Is.EqualTo(1.0).Within(0.00001));
+        }
+
+        [Test]
+        public void Normalize_ThrowsOnZeroVector()
+        {
+                Vector vector = new Vector(new double[] { 0.0, 0.0 });
+                Assert.Throws<InvalidOperationException>(() => vector.Normalize());
+        }
+
+        [Test]
+        public void Transpose_ColumnToRow_PerformsCorrectly()
+        {
+                Vector original = new Vector(new double[] { 1.0, 2.0, 3.0 }, VectorType.Column);
+                Vector transposed = original.Transpose();
+
+                Assert.That(transposed.Size, Is.EqualTo(original.Size));
+                Assert.That(transposed.Type, Is.EqualTo(VectorType.Row));
+                Assert.That(transposed.RowCount, Is.EqualTo(1));
+                Assert.That(transposed.ColumnCount, Is.EqualTo(original.Size));
+                for (int i = 0; i < original.Size; i++)
+                {
+                        Assert.That(transposed[i], Is.EqualTo(original[i]));
+                }
+        }
+
+        [Test]
+        public void Transpose_RowToColumn_PerformsCorrectly()
+        {
+                Vector original = new Vector(new double[] { 1.0, 2.0, 3.0 }, VectorType.Row);
+                Vector transposed = original.Transpose();
+
+                Assert.That(transposed.Size, Is.EqualTo(original.Size));
+                Assert.That(transposed.Type, Is.EqualTo(VectorType.Column));
+                Assert.That(transposed.RowCount, Is.EqualTo(original.Size));
+                Assert.That(transposed.ColumnCount, Is.EqualTo(1));
+                for (int i = 0; i < original.Size; i++)
+                {
+                        Assert.That(transposed[i], Is.EqualTo(original[i]));
+                }
+        }
+
+        [Test]
+        public void Clone_CreatesDeepCopy()
+        {
+                Vector original = new Vector(new double[] { 1.0, 2.0, 3.0 });
+                Vector clone = original.Clone();
+
+                Assert.That(clone, Is.Not.SameAs(original));
+                Assert.That(clone.Size, Is.EqualTo(original.Size));
+                Assert.That(clone.Type, Is.EqualTo(original.Type));
+                for (int i = 0; i < original.Size; i++)
+                {
+                        Assert.That(clone[i], Is.EqualTo(original[i]));
+                }
+
+                original[0] = 99.0;
+                Assert.That(clone[0], Is.Not.EqualTo(99.0));
+        }
+
+        [Test]
+        public void ToString_ReturnsFormattedString()
+        {
+                Vector vector = new Vector(new double[] { 1.23456, 2.34567, 3.45678 });
+                string expected = "[1,2346, 2,3457, 3,4568]";
+
+                string actual = vector.ToString();
+
+                Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ToString_SingleElementVector()
+        {
+                Vector vector = new Vector(new double[] { 7.89 });
+                string expected = "[7,8900]";
+                string actual = vector.ToString();
+                Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ToString_EmptyVector_NotApplicableDueToConstructorConstraints()
+        {
+                Vector vector = new Vector(1);
+                string expected = "[0,0000]";
+                string actual = vector.ToString();
+                Assert.That(actual, Is.EqualTo(expected));
         }
 }

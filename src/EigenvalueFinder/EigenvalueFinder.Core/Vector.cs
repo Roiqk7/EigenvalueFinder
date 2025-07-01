@@ -1,7 +1,7 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System;
-using System.Linq; // Used for convenience in ToString, can be removed if not needed elsewhere
+using System.Linq;
 using System.Text;
 
 namespace EigenvalueFinder.Core;
@@ -76,7 +76,7 @@ public class Vector : Matrix
         /// <param name="type">The type of vector (Column or Row). Defaults to Column.</param>
         /// <exception cref="ArgumentNullException">Thrown if the data array is null.</exception>
         public Vector(double[] data, VectorType type = VectorType.Column)
-                : base(type == VectorType.Column ? (data?.Length ?? 0) : 1, type == VectorType.Column ? 1 : (data?.Length ?? 0))
+                : base(type == VectorType.Column ? (data == null ? 1 : data.Length) : 1, type == VectorType.Column ? 1 : (data == null ? 1 : data.Length))
         {
                 if (data == null)
                 {
@@ -151,7 +151,29 @@ public class Vector : Matrix
                 _vectorType = type;
         }
 
-        // --- Vector-Specific Operator Overloading ---
+        // --- Operator Overloading ---
+
+        /// <summary>
+        /// Overloads the multiplication operator for scalar multiplication (double * Vector).
+        /// </summary>
+        /// <param name="scalar">The scalar value.</param>
+        /// <param name="vector">The vector to multiply.</param>
+        /// <returns>A new Vector with each element scaled by the scalar.</returns>
+        public static Vector operator *(double scalar, Vector vector)
+        {
+                return new Vector(vector.ToDenseMatrix().Multiply(scalar) as DenseMatrix, vector.Type);
+        }
+
+        /// <summary>
+        /// Overloads the multiplication operator for scalar multiplication (Vector * double).
+        /// </summary>
+        /// <param name="vector">The vector to multiply.</param>
+        /// <param name="scalar">The scalar value.</param>
+        /// <returns>A new Vector with each element scaled by the scalar.</returns>
+        public static Vector operator *(Vector vector, double scalar)
+        {
+                return scalar * vector; // Calls the other overload for consistency
+        }
 
         /// <summary>
         /// Overloads the multiplication operator for Vector-Vector multiplication (general matrix multiplication).
@@ -171,6 +193,39 @@ public class Vector : Matrix
                 return new Matrix(left.ToDenseMatrix().Multiply(right.ToDenseMatrix()) as DenseMatrix);
         }
 
+        /// <summary>
+        /// Overloads the addition operator for Vector-Vector addition.
+        /// </summary>
+        /// <param name="left">The left-hand side vector.</param>
+        /// <param name="right">The right-hand side vector.</param>
+        /// <returns>A new Vector representing the sum.</returns>
+        /// <exception cref="ArgumentException">Thrown if vectors have different sizes or types.</exception>
+        public static Vector operator +(Vector left, Vector right)
+        {
+                if (left.Size != right.Size || left.Type != right.Type)
+                {
+                        throw new ArgumentException("Vectors must have the same size and type for addition.");
+                }
+                // Perform the addition using the base Matrix operator and wrap the result back into a Vector
+                return new Vector(left.ToDenseMatrix().Add(right.ToDenseMatrix()) as DenseMatrix, left.Type);
+        }
+
+        /// <summary>
+        /// Overloads the subtraction operator for Vector-Vector subtraction.
+        /// </summary>
+        /// <param name="left">The left-hand side vector.</param>
+        /// <param name="right">The right-hand side vector.</param>
+        /// <returns>A new Vector representing the difference.</returns>
+        /// <exception cref="ArgumentException">Thrown if vectors have different sizes or types.</exception>
+        public static Vector operator -(Vector left, Vector right)
+        {
+            if (left.Size != right.Size || left.Type != right.Type)
+            {
+                throw new ArgumentException("Vectors must have the same size and type for subtraction.");
+            }
+            // Perform the subtraction using the base Matrix operator and wrap the result back into a Vector
+            return new Vector(left.ToDenseMatrix().Subtract(right.ToDenseMatrix()) as DenseMatrix, left.Type);
+        }
 
         // --- Vector-Specific Operations ---
 

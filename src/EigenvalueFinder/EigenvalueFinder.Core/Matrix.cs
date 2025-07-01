@@ -61,6 +61,22 @@ public class Matrix
                 _internalMatrix = matrix ?? throw new ArgumentNullException(nameof(matrix), "Matrix cannot be null.");
         }
 
+        /// <summary>
+        /// Creates a new identity matrix of the specified size.
+        /// An identity matrix is a square matrix with ones on the main diagonal and zeros elsewhere.
+        /// </summary>
+        /// <param name="size">The dimension of the square identity matrix (e.g., for a 3x3 identity matrix, size would be 3).</param>
+        /// <returns>A new Matrix instance representing the identity matrix.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the size is non-positive.</exception>
+        public static Matrix Identity(int size)
+        {
+                if (size <= 0)
+                {
+                        throw new ArgumentOutOfRangeException(nameof(size), "Identity matrix size must be positive.");
+                }
+                return new Matrix(DenseMatrix.CreateIdentity(size));
+        }
+
         // --- Operator Overloading ---
 
         /// <summary>
