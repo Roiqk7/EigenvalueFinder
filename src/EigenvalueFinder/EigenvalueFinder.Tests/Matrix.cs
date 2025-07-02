@@ -910,4 +910,36 @@ public class MatrixTests : TestUtils
                 DenseMatrix mathNetB = DenseMatrix.OfArray(dataB);
 
                 CoreMatrix customResult = A - B;
-                DenseMatrix mathNetResult = mathNetA.Subtract(mathNetB) 
+                DenseMatrix mathNetResult = mathNetA.Subtract(mathNetB) as DenseMatrix;
+
+                Assert.That(mathNetResult, Is.Not.Null, "MathNet subtraction result was null.");
+                AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TOLERANCE);
+        }
+
+        [Test]
+        [Repeat(50)]
+        public void Transpose_RandomizedComparisonWithMathNet()
+        {
+                Random rnd = new Random();
+                int rows = rnd.Next(2, 5);
+                int cols = rnd.Next(2, 5);
+
+                Complex[,] data = new Complex[rows, cols];
+                for (int r = 0; r < rows; r++)
+                {
+                        for (int c = 0; c < cols; c++)
+                        {
+                                data[r, c] = GetRandomComplex();
+                        }
+                }
+
+                CoreMatrix customMatrix = new CoreMatrix(data);
+                DenseMatrix mathNetMatrix = DenseMatrix.OfArray(data);
+
+                CoreMatrix customTransposed = customMatrix.Transpose();
+                DenseMatrix mathNetTransposed = mathNetMatrix.Transpose() as DenseMatrix;
+
+                Assert.That(mathNetTransposed, Is.Not.Null, "MathNet transpose result was null.");
+                AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetTransposed), customTransposed, TOLERANCE);
+        }
+}

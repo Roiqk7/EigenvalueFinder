@@ -1,7 +1,5 @@
-1. Fully move to complex
-2. Add output format to Utils
-3. Refactor the code
 4. QR-algorithm
+	A] Create algorithm to find QR
 	B] Create the algorithm itself
 	C] Create algorithm to read the solution
 	D] Create algorithm to find the eigen-vertices
