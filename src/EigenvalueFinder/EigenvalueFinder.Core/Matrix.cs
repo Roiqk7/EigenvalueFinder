@@ -1,7 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
-using System;
-using System.Data;
+﻿using MathNet.Numerics.LinearAlgebra.Complex;
+using System.Numerics;
 using System.Text;
 
 namespace EigenvalueFinder.Core;
@@ -9,18 +7,18 @@ namespace EigenvalueFinder.Core;
 public class Matrix
 {
         // The private Math.NET Numerics DenseMatrix instance that this class envelops.
-        private DenseMatrix _internalMatrix;
+        private DenseMatrix m_internalMatrix;
 
         // --- Properties ---
 
-        public int RowCount => _internalMatrix.RowCount;
-        public int ColumnCount => _internalMatrix.ColumnCount;
+        public int RowCount => m_internalMatrix.RowCount;
+        public int ColumnCount => m_internalMatrix.ColumnCount;
 
         // Indexer for easy element access (like a 2D array)
-        public double this[int row, int col]
+        public Complex this[int row, int col]
         {
-                get => _internalMatrix[row, col];
-                set => _internalMatrix[row, col] = value;
+                get => m_internalMatrix[row, col];
+                set => m_internalMatrix[row, col] = value;
         }
 
         // --- Constructors ---
@@ -33,11 +31,15 @@ public class Matrix
         /// <exception cref="ArgumentOutOfRangeException">Thrown if dimensions are non-positive.</exception>
         public Matrix(int rows, int columns)
         {
-                if (rows <= 0 || columns <= 0)
+                if (rows <= 0)
                 {
-                        throw new ArgumentOutOfRangeException("Matrix dimensions must be positive.");
+                        throw new ArgumentOutOfRangeException(nameof(rows), "Matrix row count must be positive.");
                 }
-                _internalMatrix = DenseMatrix.Create(rows, columns, 0.0);
+                if (columns <= 0)
+                {
+                        throw new ArgumentOutOfRangeException(nameof(columns), "Matrix column count must be positive.");
+                }
+                m_internalMatrix = DenseMatrix.Create(rows, columns, Complex.Zero);
         }
 
         /// <summary>
@@ -45,9 +47,9 @@ public class Matrix
         /// </summary>
         /// <param name="data">The 2D array of matrix elements.</param>
         /// <exception cref="ArgumentNullException">Thrown if the data array is null.</exception>
-        public Matrix(double[,] data)
+        public Matrix(Complex[,] data)
         {
-                _internalMatrix = DenseMatrix.OfArray(data ?? throw new ArgumentNullException(nameof(data), "Data array cannot be null."));
+                m_internalMatrix = DenseMatrix.OfArray(data ?? throw new ArgumentNullException(nameof(data), "Data array cannot be null."));
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ public class Matrix
         /// <exception cref="ArgumentNullException">Thrown if the internal matrix is null.</exception>
         public Matrix(DenseMatrix matrix)
         {
-                _internalMatrix = matrix ?? throw new ArgumentNullException(nameof(matrix), "Matrix cannot be null.");
+                m_internalMatrix = matrix ?? throw new ArgumentNullException(nameof(matrix), "Matrix cannot be null.");
         }
 
         /// <summary>
@@ -77,60 +79,90 @@ public class Matrix
                 return new Matrix(DenseMatrix.CreateIdentity(size));
         }
 
+        /// <summary>
+        /// Creates a new standard basis vector (a vector with a single '1' at a specified position and zeros elsewhere).
+        /// </summary>
+        /// <param name="size">The length of the vector (e.g., for a vector of 5 elements, size would be 5).</param>
+        /// <param name="index">The zero-based index where the '1' should be placed (e.g., for the 3rd element, index would be 2).</param>
+        /// <returns>A new Matrix instance representing the standard basis vector.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if size is non-positive .</exception>
+        /// <exception cref="IndexOutOfRangeException">Thrown if index is out of bounds.</exception>
+        public static Matrix Identity(int size, int index)
+        {
+                if (size <= 0)
+                {
+                        throw new ArgumentOutOfRangeException(nameof(size), "Vector size must be positive.");
+                }
+                if (index < 0 || index >= size)
+                {
+                        throw new ArgumentOutOfRangeException(nameof(index), message: "Index must be within the bounds of the vector size (0 to size - 1).");
+                }
+
+                DenseMatrix internalVector = DenseMatrix.Create(size, 1, Complex.Zero);
+                internalVector[index, 0] = Complex.One;
+
+                return new Matrix(internalVector);
+        }
+
         // --- Operator Overloading ---
 
         /// <summary>
-        /// Overloads the multiplication operator for Matrix-Matrix multiplication.
+        /// Multiplies two matrices.
         /// </summary>
         /// <param name="left">The left-hand side matrix.</param>
         /// <param name="right">The right-hand side matrix.</param>
-        /// <returns>A new Matrix representing the product.</returns>
-        /// <exception cref="ArgumentException">Thrown if matrix dimensions are incompatible for multiplication.</exception>
+        /// <returns>A new Matrix instance representing the product of the two matrices.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if either input matrix is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if matrix dimensions are incompatible for multiplication or if the result is unexpected.</exception>
         public static Matrix operator *(Matrix left, Matrix right)
         {
-                if (left.ColumnCount != right.RowCount)
+                if (left is null)
                 {
-                        throw new ArgumentException("Matrix dimensions must be compatible for multiplication (left.ColumnCount == right.RowCount).");
+                        throw new ArgumentNullException(nameof(left));
                 }
-                return new Matrix(left._internalMatrix.Multiply(right._internalMatrix) as DenseMatrix);
+                if (right is null)
+                {
+                        throw new ArgumentNullException(nameof(right));
+                }
+
+                return new Matrix(
+                        left.m_internalMatrix.Multiply(right.m_internalMatrix) as DenseMatrix
+                        ?? throw new InvalidOperationException("Matrix multiplication failed.")
+                );
         }
 
         /// <summary>
-        /// Overloads the multiplication operator for scalar multiplication (Matrix * double).
-        /// </summary>
-        /// <param name="matrix">The matrix to multiply.</param>
-        /// <param name="scalar">The scalar value.</param>
-        /// <returns>A new Matrix with each element scaled by the scalar.</returns>
-        public static Matrix operator *(Matrix matrix, double scalar)
-        {
-                return new Matrix(matrix._internalMatrix.Multiply(scalar) as DenseMatrix);
-        }
-
-        /// <summary>
-        /// Overloads the multiplication operator for scalar multiplication (double * Matrix).
+        /// Overloads the multiplication operator for scalar multiplication (Complex * Matrix).
         /// </summary>
         /// <param name="scalar">The scalar value.</param>
         /// <param name="matrix">The matrix to multiply.</param>
         /// <returns>A new Matrix with each element scaled by the scalar.</returns>
-        public static Matrix operator *(double scalar, Matrix matrix)
+        /// <exception cref="ArgumentNullException">Thrown if input matrix is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if multiplication fails or if the result is unexpected.</exception>
+        public static Matrix operator *(Complex scalar, Matrix matrix)
         {
-                return matrix * scalar;
+                if (matrix is null)
+                {
+                        throw new ArgumentNullException(nameof(matrix));
+                }
+
+                return new Matrix(
+                        matrix.m_internalMatrix.Multiply(scalar) as DenseMatrix
+                        ?? throw new InvalidOperationException("Matrix scalar multiplication failed.")
+                );
         }
 
         /// <summary>
-        /// Overloads the multiplication operator for Matrix-Vector multiplication (Matrix * Vector).
+        /// Overloads the multiplication operator for scalar multiplication (Matrix * Complex).
         /// </summary>
-        /// <param name="matrix">The matrix.</param>
-        /// <param name="vector">The vector.</param>
-        /// <returns>A new Vector representing the product.</returns>
-        /// <exception cref="ArgumentException">Thrown if matrix columns do not match vector size.</exception>
-        public static Vector operator *(Matrix matrix, Vector vector)
+        /// <param name="matrix">The matrix to multiply.</param>
+        /// <param name="scalar">The scalar value.</param>
+        /// <returns>A new Matrix with each element scaled by the scalar.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if input matrix is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if multiplication fails or if the result is unexpected.</exception>
+        public static Matrix operator *(Matrix matrix, Complex scalar)
         {
-                if (matrix.ColumnCount != vector.Size)
-                {
-                        throw new ArgumentException("Matrix columns must match vector size for multiplication.");
-                }
-                return new Vector(matrix._internalMatrix.Multiply(vector.ToDenseMatrix()) as DenseMatrix);
+                return scalar * matrix;
         }
 
         /// <summary>
@@ -138,72 +170,120 @@ public class Matrix
         /// </summary>
         /// <param name="left">The left-hand side matrix.</param>
         /// <param name="right">The right-hand side matrix.</param>
-        /// <returns>A new Matrix representing the sum.</returns>
-        /// <exception cref="ArgumentException">Thrown if matrices have different dimensions.</exception>
+        /// <returns>A new Matrix instance representing the sum of the two matrices.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if either input matrix is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if matrix dimensions are incompatible for addition or if the result is unexpected.</exception>
         public static Matrix operator +(Matrix left, Matrix right)
         {
-                if (left.RowCount != right.RowCount || left.ColumnCount != right.ColumnCount)
+                if (left is null)
                 {
-                        throw new ArgumentException("Matrices must have the same dimensions for addition.");
+                        throw new ArgumentNullException(nameof(left));
                 }
-                return new Matrix(left._internalMatrix.Add(right._internalMatrix) as DenseMatrix);
+                if (right is null)
+                {
+                        throw new ArgumentNullException(nameof(right));
+                }
+                if (!HaveSameDimensions(left, right))
+                {
+                        throw new InvalidOperationException("Matrix dimensions mismatch.");
+                }
+
+                return new Matrix(
+                        left.m_internalMatrix.Add(right.m_internalMatrix) as DenseMatrix
+                        ?? throw new InvalidOperationException("Matrix addition failed.")
+                );
         }
 
         /// <summary>
-        /// Overloads the subtraction operator for Matrix-Matrix subtraction.
+        /// Overloads the subtraction operator for Matrix-Matrix addition.
         /// </summary>
         /// <param name="left">The left-hand side matrix.</param>
         /// <param name="right">The right-hand side matrix.</param>
-        /// <returns>A new Matrix representing the difference.</returns>
-        /// <exception cref="ArgumentException">Thrown if matrices have different dimensions.</exception>
+        /// <returns>A new Matrix instance representing the difference of the two matrices.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if either input matrix is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if matrix dimensions are incompatible for subtraction or if the result is unexpected.</exception>
         public static Matrix operator -(Matrix left, Matrix right)
         {
-                if (left.RowCount != right.RowCount || left.ColumnCount != right.ColumnCount)
+                if (left is null)
                 {
-                        throw new ArgumentException("Matrices must have the same dimensions for subtraction.");
+                        throw new ArgumentNullException(nameof(left));
                 }
-                return new Matrix(left._internalMatrix.Subtract(right._internalMatrix) as DenseMatrix);
+                if (right is null)
+                {
+                        throw new ArgumentNullException(nameof(right));
+                }
+                if (!HaveSameDimensions(left, right))
+                {
+                        throw new InvalidOperationException("Matrix dimensions mismatch.");
+                }
+
+                return new Matrix(
+                        left.m_internalMatrix.Subtract(right.m_internalMatrix) as DenseMatrix
+                        ?? throw new InvalidOperationException("Matrix subtraction failed likely due to dimensions mismatch.")
+                );
         }
+
+        /// <summary>
+        /// Determines whether two Matrix instances are equal.
+        /// Matrices are considered equal if they have the same dimensions and all corresponding elements are equal.
+        /// </summary>
+        /// <param name="left">The left-hand side matrix.</param>
+        /// <param name="right">The right-hand side matrix.</param>
+        /// <returns>True if the matrices are equal; otherwise, false.</returns>
+        public static bool operator ==(Matrix left, Matrix right)
+        {
+                if (ReferenceEquals(left, null) && ReferenceEquals(right, null))
+                {
+                        return true;
+                }
+                if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                {
+                        return false;
+                }
+                if (!HaveSameDimensions(left, right))
+                {
+                        return false;
+                }
+                return left.m_internalMatrix.Equals(right.m_internalMatrix);
+        }
+
+        /// <summary>
+        /// Determines whether two Matrix instances are not equal.
+        /// </summary>
+        /// <param name="left">The left-hand side matrix.</param>
+        /// <param name="right">The right-hand side matrix.</param>
+        /// <returns>True if the matrices are not equal; otherwise, false.</returns>
+        public static bool operator !=(Matrix left, Matrix right)
+        {
+                return !(left == right);
+        }
+
+        // --- Additional matrix operations ---
 
         /// <summary>
         /// Transposes the matrix.
         /// </summary>
         /// <returns>A new Matrix representing the transpose.</returns>
+        /// <exception cref="NullReferenceException">Thrown if matrix transposition failed.</exception>
         public Matrix Transpose()
         {
-                return new Matrix(_internalMatrix.Transpose() as DenseMatrix);
-        }
-
-        /// <summary>
-        /// Creates a deep copy of the current Matrix instance.
-        /// </summary>
-        /// <returns>A new Matrix object that is a deep copy of this instance.</returns>
-        public Matrix Clone()
-        {
-                return new Matrix(_internalMatrix.Clone() as DenseMatrix);
-        }
-
-        // --- Public access to internal Math.NET object ---
-
-        /// <summary>
-        /// Provides direct access to the underlying Math.NET Numerics DenseMatrix.
-        /// This is useful when interfacing with Math.NET functions that expect a DenseMatrix (e.g., Evd).
-        /// </summary>
-        public DenseMatrix ToDenseMatrix()
-        {
-                return _internalMatrix;
+                return new Matrix(
+                        m_internalMatrix.Transpose() as DenseMatrix
+                        ?? throw new ArgumentNullException(nameof(m_internalMatrix), "Matrix transposition failed.")
+                );
         }
 
         // --- Implicit Conversion Operators ---
 
         /// <summary>
-        /// Implicitly converts a 1x1 Matrix to a double.
+        /// Implicitly converts a 1x1 Matrix to a Complex.
         /// This allows the result of a dot product (which is a 1x1 matrix) to be directly used as a scalar.
         /// </summary>
         /// <param name="matrix">The Matrix to convert.</param>
-        /// <returns>The single double value from the 1x1 matrix.</returns>
+        /// <returns>The single Complex value from the 1x1 matrix.</returns>
+        /// <exception cref="NullReferenceException">Thrown if matrix is null.</exception>
         /// <exception cref="InvalidCastException">Thrown if the matrix is not 1x1.</exception>
-        public static implicit operator double(Matrix matrix)
+        public static implicit operator Complex(Matrix matrix)
         {
                 if (matrix == null)
                 {
@@ -214,6 +294,42 @@ public class Matrix
                         return matrix[0, 0];
                 }
                 throw new InvalidCastException($"Matrix must be 1x1 to be implicitly converted to a double. Current dimensions: {matrix.RowCount}x{matrix.ColumnCount}");
+        }
+
+        // --- Additional methods
+
+        /// <summary>
+        /// Checks if the input matrices have same dimensions.
+        /// </summary>
+        /// <param name="left">The left-hand side matrix.</param>
+        /// <param name="right">The right-hand side matrix.</param>
+        /// <returns>Whether the input matrices have the same dimensions.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if either input matrix is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if matrix dimensions are incompatible for subtraction or if the result is unexpected.</exception>
+        private static bool HaveSameDimensions(Matrix left, Matrix right)
+        {
+                if (left is null)
+                {
+                        throw new ArgumentNullException(nameof(left));
+                }
+                if (right is null)
+                {
+                        throw new ArgumentNullException(nameof(right));
+                }
+
+                return left.RowCount == right.RowCount && left.ColumnCount == right.ColumnCount;
+        }
+
+        /// <summary>
+        /// Creates a deep copy of the current Matrix instance.
+        /// </summary>
+        /// <returns>A new Matrix object that is a deep copy of this instance.</returns>
+        public Matrix Clone()
+        {
+                return new Matrix(
+                        m_internalMatrix.Clone() as DenseMatrix
+                        ?? throw new ArgumentNullException(nameof(m_internalMatrix), "Matrix cloning failed.")
+                );
         }
 
         // --- Representation ---
@@ -228,7 +344,7 @@ public class Matrix
                 {
                         for (int c = 0; c < ColumnCount; c++)
                         {
-                                sb.Append($"{_internalMatrix[r, c]:F4}\t");
+                                sb.Append($"{m_internalMatrix[r, c].ToString("R")}\t");
                         }
                         sb.AppendLine();
                 }
