@@ -223,41 +223,6 @@ public class Matrix
                 );
         }
 
-        /// <summary>
-        /// Determines whether two Matrix instances are equal.
-        /// Matrices are considered equal if they have the same dimensions and all corresponding elements are equal.
-        /// </summary>
-        /// <param name="left">The left-hand side matrix.</param>
-        /// <param name="right">The right-hand side matrix.</param>
-        /// <returns>True if the matrices are equal; otherwise, false.</returns>
-        public static bool operator ==(Matrix left, Matrix right)
-        {
-                if (ReferenceEquals(left, null) && ReferenceEquals(right, null))
-                {
-                        return true;
-                }
-                if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-                {
-                        return false;
-                }
-                if (!HaveSameDimensions(left, right))
-                {
-                        return false;
-                }
-                return left.m_internalMatrix.Equals(right.m_internalMatrix);
-        }
-
-        /// <summary>
-        /// Determines whether two Matrix instances are not equal.
-        /// </summary>
-        /// <param name="left">The left-hand side matrix.</param>
-        /// <param name="right">The right-hand side matrix.</param>
-        /// <returns>True if the matrices are not equal; otherwise, false.</returns>
-        public static bool operator !=(Matrix left, Matrix right)
-        {
-                return !(left == right);
-        }
-
         // --- Additional matrix operations ---
 
         /// <summary>

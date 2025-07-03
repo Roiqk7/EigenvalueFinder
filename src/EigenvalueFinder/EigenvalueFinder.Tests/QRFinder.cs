@@ -11,7 +11,7 @@ public static class QRFinderTests
         [Test]
         public static void GetQR_NullMatrix_ThrowsArgumentNullException()
         {
-                Assert.Throws<ArgumentNullException>(() => QRFinder.getQR(null));
+                Assert.Throws<ArgumentNullException>(() => QRFinder.getQR( null));
         }
 
         [Test]

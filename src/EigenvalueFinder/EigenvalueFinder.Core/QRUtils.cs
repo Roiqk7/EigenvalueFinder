@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace EigenvalueFinder.Core;
 
 public static class QRUtils
@@ -12,5 +14,11 @@ public static class QRUtils
                         this.Q = Q;
                         this.R = R;
                 }
+        }
+
+        public struct Eigenpair
+        {
+                public Complex eigenvalue;
+                public EigenvalueFinder.Core.Matrix eigenvector;
         }
 }
