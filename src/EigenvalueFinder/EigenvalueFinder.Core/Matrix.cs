@@ -332,6 +332,16 @@ public class Matrix
                 );
         }
 
+        /// <summary>
+        /// Returns the underlying Math.NET Numerics DenseMatrix instance.
+        /// This allows for direct access to Math.NET functionalities when needed.
+        /// </summary>
+        /// <returns>The internal DenseMatrix.</returns>
+        public DenseMatrix GetInternalMatrix()
+        {
+                return m_internalMatrix;
+        }
+
         // --- Representation ---
 
         /// <summary>

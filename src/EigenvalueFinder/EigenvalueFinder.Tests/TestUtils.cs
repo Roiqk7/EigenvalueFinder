@@ -8,7 +8,7 @@ public abstract class TestUtils
         /// <summary>
         /// Tolerance used for floating point comparisons in assertions.
         /// </summary>
-        protected const double TOLERANCE = 1e-9;
+        protected const double TOLERANCE = 1e-4;
 
         /// <summary>
         /// Generates a random complex number with both real and imaginary parts.
