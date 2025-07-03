@@ -1,17 +1,14 @@
-using NUnit.Framework;
-using CoreMatrix = EigenvalueFinder.Core.Matrix; // Alias for your Matrix class
+using CoreMatrix = EigenvalueFinder.Core.Matrix; // Alias for Matrix class to avoid ambiguous reference
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra.Complex;
-using System;
-using System.Text;
 
 namespace EigenvalueFinder.Tests;
 
 [TestFixture]
-public class MatrixTests : TestUtils
+public static class MatrixTests
 {
         [Test]
-        public void Constructor_Dimensions_CreatesZeroMatrix()
+        public static void Constructor_Dimensions_CreatesZeroMatrix()
         {
                 int rows = 3;
                 int cols = 4;
@@ -34,13 +31,13 @@ public class MatrixTests : TestUtils
         [TestCase(5, 0)]
         [TestCase(-1, 5)]
         [TestCase(5, -1)]
-        public void Constructor_Dimensions_ThrowsArgumentOutOfRangeExceptionForNonPositive(int rows, int cols)
+        public static void Constructor_Dimensions_ThrowsArgumentOutOfRangeExceptionForNonPositive(int rows, int cols)
         {
                 Assert.Throws<ArgumentOutOfRangeException>(() => new CoreMatrix(rows, cols));
         }
 
         [Test]
-        public void Constructor_Complex2DArray_CreatesCorrectMatrix_RealNumbers()
+        public static void Constructor_Complex2DArray_CreatesCorrectMatrix_RealNumbers()
         {
                 Complex[,] data = {
                         { new Complex(1, 0), new Complex(2, 0) },
@@ -58,7 +55,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Constructor_Complex2DArray_CreatesCorrectMatrix_ComplexNumbers()
+        public static void Constructor_Complex2DArray_CreatesCorrectMatrix_ComplexNumbers()
         {
                 Complex[,] data = {
                         { new Complex(1, 1), new Complex(2, 2) },
@@ -76,7 +73,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Constructor_Complex2DArray_CreatesCorrectMatrix_MixedNumbers()
+        public static void Constructor_Complex2DArray_CreatesCorrectMatrix_MixedNumbers()
         {
                 Complex[,] data = {
                         { new Complex(1, 0), new Complex(2, 2) },
@@ -94,7 +91,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Constructor_Complex2DArray_ThrowsArgumentNullExceptionForNullData()
+        public static void Constructor_Complex2DArray_ThrowsArgumentNullExceptionForNullData()
         {
                 Complex[,] data = null;
 
@@ -102,7 +99,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Constructor_DenseMatrix_WrapsCorrectly()
+        public static void Constructor_DenseMatrix_WrapsCorrectly()
         {
                 DenseMatrix denseMatrix = DenseMatrix.Create(2, 2, (r, c) => new Complex(r + c, r - c));
 
@@ -120,7 +117,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Constructor_DenseMatrix_ThrowsArgumentNullExceptionForNullDenseMatrix()
+        public static void Constructor_DenseMatrix_ThrowsArgumentNullExceptionForNullDenseMatrix()
         {
                 DenseMatrix denseMatrix = null;
 
@@ -128,7 +125,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Identity_Size_CreatesCorrectIdentityMatrix_SmallSize()
+        public static void Identity_Size_CreatesCorrectIdentityMatrix_SmallSize()
         {
                 int size = 3;
                 Complex[,] expectedData = {
@@ -140,11 +137,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix identityMatrix = CoreMatrix.Identity(size);
 
-                AssertMatricesApproximatelyEqual(expectedMatrix, identityMatrix, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expectedMatrix, identityMatrix, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Identity_Size_CreatesCorrectIdentityMatrix_LargerSize()
+        public static void Identity_Size_CreatesCorrectIdentityMatrix_LargerSize()
         {
                 int size = 5;
                 DenseMatrix expectedDenseMatrix = DenseMatrix.CreateIdentity(size);
@@ -152,19 +149,19 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix identityMatrix = CoreMatrix.Identity(size);
 
-                AssertMatricesApproximatelyEqual(expectedMatrix, identityMatrix, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expectedMatrix, identityMatrix, TestUtils.TOLERANCE);
         }
 
         [Test]
         [TestCase(0)]
         [TestCase(-1)]
-        public void Identity_Size_ThrowsArgumentOutOfRangeExceptionForNonPositiveSize(int size)
+        public static void Identity_Size_ThrowsArgumentOutOfRangeExceptionForNonPositiveSize(int size)
         {
                 Assert.Throws<ArgumentOutOfRangeException>(() => CoreMatrix.Identity(size));
         }
 
         [Test]
-        public void Identity_SizeIndex_CreatesCorrectStandardBasisVector_FirstElement()
+        public static void Identity_SizeIndex_CreatesCorrectStandardBasisVector_FirstElement()
         {
                 int size = 4;
                 int index = 0;
@@ -178,11 +175,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix basisVector = CoreMatrix.Identity(size, index);
 
-                AssertMatricesApproximatelyEqual(expectedVector, basisVector, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expectedVector, basisVector, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Identity_SizeIndex_CreatesCorrectStandardBasisVector_MiddleElement()
+        public static void Identity_SizeIndex_CreatesCorrectStandardBasisVector_MiddleElement()
         {
                 int size = 4;
                 int index = 2;
@@ -196,11 +193,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix basisVector = CoreMatrix.Identity(size, index);
 
-                AssertMatricesApproximatelyEqual(expectedVector, basisVector, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expectedVector, basisVector, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Identity_SizeIndex_CreatesCorrectStandardBasisVector_LastElement()
+        public static void Identity_SizeIndex_CreatesCorrectStandardBasisVector_LastElement()
         {
                 int size = 4;
                 int index = 3;
@@ -214,20 +211,20 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix basisVector = CoreMatrix.Identity(size, index);
 
-                AssertMatricesApproximatelyEqual(expectedVector, basisVector, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expectedVector, basisVector, TestUtils.TOLERANCE);
         }
 
         [Test]
         [TestCase(0, 0)]
         [TestCase(5, -1)]
         [TestCase(5, 5)]
-        public void Identity_SizeIndex_ThrowsArgumentOutOfRangeExceptionForInvalidArgs(int size, int index)
+        public static void Identity_SizeIndex_ThrowsArgumentOutOfRangeExceptionForInvalidArgs(int size, int index)
         {
                 Assert.Throws<ArgumentOutOfRangeException>(() => CoreMatrix.Identity(size, index));
         }
 
         [Test]
-        public void Indexer_GetAndSet_WorksCorrectly_RealNumbers()
+        public static void Indexer_GetAndSet_WorksCorrectly_RealNumbers()
         {
                 CoreMatrix matrix = new CoreMatrix(2, 2);
                 Complex value = new Complex(10, 0);
@@ -239,7 +236,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Indexer_GetAndSet_WorksCorrectly_ComplexNumbers()
+        public static void Indexer_GetAndSet_WorksCorrectly_ComplexNumbers()
         {
                 CoreMatrix matrix = new CoreMatrix(2, 2);
                 Complex value = new Complex(5, -3);
@@ -251,7 +248,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Indexer_GetAndSet_WorksCorrectly_MixedNumbers()
+        public static void Indexer_GetAndSet_WorksCorrectly_MixedNumbers()
         {
                 CoreMatrix matrix = new CoreMatrix(2, 2);
                 Complex realValue = new Complex(10, 0);
@@ -271,7 +268,7 @@ public class MatrixTests : TestUtils
         [TestCase(0, -1)]
         [TestCase(2, 0)]
         [TestCase(0, 2)]
-        public void Indexer_Get_ThrowsArgumentOutOfRangeException(int row, int col) // Changed to ArgumentOutOfRangeException
+        public static void Indexer_Get_ThrowsArgumentOutOfRangeException(int row, int col) // Changed to ArgumentOutOfRangeException
         {
                 CoreMatrix matrix = new CoreMatrix(2, 2);
 
@@ -283,7 +280,7 @@ public class MatrixTests : TestUtils
         [TestCase(0, -1)]
         [TestCase(2, 0)]
         [TestCase(0, 2)]
-        public void Indexer_Set_ThrowsArgumentOutOfRangeException(int row, int col) // Changed to ArgumentOutOfRangeException
+        public static void Indexer_Set_ThrowsArgumentOutOfRangeException(int row, int col) // Changed to ArgumentOutOfRangeException
         {
                 CoreMatrix matrix = new CoreMatrix(2, 2);
 
@@ -291,7 +288,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Multiply_MatrixMatrix_CorrectResult_RealNumbers()
+        public static void Operator_Multiply_MatrixMatrix_CorrectResult_RealNumbers()
         {
                 Complex[,] dataA = { { new Complex(1, 0), new Complex(2, 0) }, { new Complex(3, 0), new Complex(4, 0) } };
                 Complex[,] dataB = { { new Complex(5, 0), new Complex(6, 0) }, { new Complex(7, 0), new Complex(8, 0) } };
@@ -303,11 +300,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A * B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Multiply_MatrixMatrix_CorrectResult_ComplexNumbers()
+        public static void Operator_Multiply_MatrixMatrix_CorrectResult_ComplexNumbers()
         {
                 Complex[,] dataA = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
                 Complex[,] dataB = { { new Complex(5, 5), new Complex(6, 6) }, { new Complex(7, 7), new Complex(8, 8) } } ;
@@ -319,11 +316,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A * B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Multiply_MatrixMatrix_CorrectResult_MixedNumbers()
+        public static void Operator_Multiply_MatrixMatrix_CorrectResult_MixedNumbers()
         {
                 Complex[,] dataA = { { new Complex(1, 0), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 0) } };
                 Complex[,] dataB = { { new Complex(5, 5), new Complex(6, 0) }, { new Complex(7, 0), new Complex(8, 8) } };
@@ -338,11 +335,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A * B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Multiply_MatrixMatrix_ThrowsArgumentNullExceptionForNullLeft()
+        public static void Operator_Multiply_MatrixMatrix_ThrowsArgumentNullExceptionForNullLeft()
         {
                 CoreMatrix left = null;
                 CoreMatrix right = new CoreMatrix(2, 2);
@@ -351,7 +348,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Multiply_MatrixMatrix_ThrowsArgumentNullExceptionForNullRight()
+        public static void Operator_Multiply_MatrixMatrix_ThrowsArgumentNullExceptionForNullRight()
         {
                 CoreMatrix left = new CoreMatrix(2, 2);
                 CoreMatrix right = null;
@@ -360,7 +357,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Multiply_MatrixMatrix_ThrowsArgumentExceptionForDimensionMismatch()
+        public static void Operator_Multiply_MatrixMatrix_ThrowsArgumentExceptionForDimensionMismatch()
         {
                 CoreMatrix A = new CoreMatrix(2, 3);
                 CoreMatrix B = new CoreMatrix(2, 2);
@@ -369,7 +366,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Multiply_ScalarMatrix_CorrectResult_RealScalar()
+        public static void Operator_Multiply_ScalarMatrix_CorrectResult_RealScalar()
         {
                 Complex scalar = new Complex(2, 0);
                 Complex[,] data = { { new Complex(1, 0), new Complex(2, 0) }, { new Complex(3, 0), new Complex(4, 0) } };
@@ -380,11 +377,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = scalar * matrix;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Multiply_ScalarMatrix_CorrectResult_ComplexScalar()
+        public static void Operator_Multiply_ScalarMatrix_CorrectResult_ComplexScalar()
         {
                 Complex scalar = new Complex(0, 2);
                 Complex[,] data = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
@@ -398,11 +395,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = scalar * matrix;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Multiply_ScalarMatrix_ThrowsArgumentNullExceptionForNullMatrix()
+        public static void Operator_Multiply_ScalarMatrix_ThrowsArgumentNullExceptionForNullMatrix()
         {
                 Complex scalar = Complex.One;
                 CoreMatrix matrix = null;
@@ -411,7 +408,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Multiply_MatrixScalar_CorrectResult()
+        public static void Operator_Multiply_MatrixScalar_CorrectResult()
         {
                 Complex scalar = new Complex(2, 0);
                 Complex[,] data = { { new Complex(1, 0), new Complex(2, 0) }, { new Complex(3, 0), new Complex(4, 0) } };
@@ -422,11 +419,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = matrix * scalar;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Multiply_MatrixScalar_ThrowsArgumentNullExceptionForNullMatrix()
+        public static void Operator_Multiply_MatrixScalar_ThrowsArgumentNullExceptionForNullMatrix()
         {
                 Complex scalar = Complex.One;
                 CoreMatrix matrix = null;
@@ -436,7 +433,7 @@ public class MatrixTests : TestUtils
 
 
         [Test]
-        public void Operator_Add_MatrixMatrix_CorrectResult_RealNumbers()
+        public static void Operator_Add_MatrixMatrix_CorrectResult_RealNumbers()
         {
                 Complex[,] dataA = { { new Complex(1, 0), new Complex(2, 0) }, { new Complex(3, 0), new Complex(4, 0) } };
                 Complex[,] dataB = { { new Complex(5, 0), new Complex(6, 0) }, { new Complex(7, 0), new Complex(8, 0) } };
@@ -448,11 +445,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A + B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Add_MatrixMatrix_CorrectResult_ComplexNumbers()
+        public static void Operator_Add_MatrixMatrix_CorrectResult_ComplexNumbers()
         {
                 Complex[,] dataA = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
                 Complex[,] dataB = { { new Complex(5, 5), new Complex(6, 6) }, { new Complex(7, 7), new Complex(8, 8) } };
@@ -464,11 +461,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A + B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Add_MatrixMatrix_CorrectResult_MixedNumbers()
+        public static void Operator_Add_MatrixMatrix_CorrectResult_MixedNumbers()
         {
                 Complex[,] dataA = { { new Complex(1, 0), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 0) } };
                 Complex[,] dataB = { { new Complex(5, 5), new Complex(6, 0) }, { new Complex(7, 0), new Complex(8, 8) } };
@@ -483,11 +480,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A + B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Add_MatrixMatrix_ThrowsArgumentNullExceptionForNullLeft()
+        public static void Operator_Add_MatrixMatrix_ThrowsArgumentNullExceptionForNullLeft()
         {
                 CoreMatrix left = null;
                 CoreMatrix right = new CoreMatrix(2, 2);
@@ -496,7 +493,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Add_MatrixMatrix_ThrowsArgumentNullExceptionForNullRight()
+        public static void Operator_Add_MatrixMatrix_ThrowsArgumentNullExceptionForNullRight()
         {
                 CoreMatrix left = new CoreMatrix(2, 2);
                 CoreMatrix right = null;
@@ -505,7 +502,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Add_MatrixMatrix_ThrowsInvalidOperationExceptionForDimensionMismatch()
+        public static void Operator_Add_MatrixMatrix_ThrowsInvalidOperationExceptionForDimensionMismatch()
         {
                 CoreMatrix A = new CoreMatrix(2, 3);
                 CoreMatrix B = new CoreMatrix(2, 2);
@@ -514,7 +511,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Subtract_MatrixMatrix_CorrectResult_RealNumbers()
+        public static void Operator_Subtract_MatrixMatrix_CorrectResult_RealNumbers()
         {
                 Complex[,] dataA = { { new Complex(5, 0), new Complex(6, 0) }, { new Complex(7, 0), new Complex(8, 0) } };
                 Complex[,] dataB = { { new Complex(1, 0), new Complex(2, 0) }, { new Complex(3, 0), new Complex(4, 0) } };
@@ -526,11 +523,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A - B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Subtract_MatrixMatrix_CorrectResult_ComplexNumbers()
+        public static void Operator_Subtract_MatrixMatrix_CorrectResult_ComplexNumbers()
         {
                 Complex[,] dataA = { { new Complex(5, 5), new Complex(6, 6) }, { new Complex(7, 7), new Complex(8, 8) } };
                 Complex[,] dataB = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
@@ -542,11 +539,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A - B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Subtract_MatrixMatrix_CorrectResult_MixedNumbers()
+        public static void Operator_Subtract_MatrixMatrix_CorrectResult_MixedNumbers()
         {
                 Complex[,] dataA = { { new Complex(5, 5), new Complex(6, 0) }, { new Complex(7, 0), new Complex(8, 8) } };
                 Complex[,] dataB = { { new Complex(1, 0), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 0) } };
@@ -561,11 +558,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix result = A - B;
 
-                AssertMatricesApproximatelyEqual(expected, result, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, result, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Operator_Subtract_MatrixMatrix_ThrowsArgumentNullExceptionForNullLeft()
+        public static void Operator_Subtract_MatrixMatrix_ThrowsArgumentNullExceptionForNullLeft()
         {
                 CoreMatrix left = null;
                 CoreMatrix right = new CoreMatrix(2, 2);
@@ -574,7 +571,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Subtract_MatrixMatrix_ThrowsArgumentNullExceptionForNullRight()
+        public static void Operator_Subtract_MatrixMatrix_ThrowsArgumentNullExceptionForNullRight()
         {
                 CoreMatrix left = new CoreMatrix(2, 2);
                 CoreMatrix right = null;
@@ -583,7 +580,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Subtract_MatrixMatrix_ThrowsInvalidOperationExceptionForDimensionMismatch()
+        public static void Operator_Subtract_MatrixMatrix_ThrowsInvalidOperationExceptionForDimensionMismatch()
         {
                 CoreMatrix A = new CoreMatrix(2, 3);
                 CoreMatrix B = new CoreMatrix(2, 2);
@@ -592,7 +589,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Equality_ReturnsTrueForEqualMatrices()
+        public static void Operator_Equality_ReturnsTrueForEqualMatrices()
         {
                 Complex[,] dataA = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
                 Complex[,] dataB = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
@@ -603,7 +600,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Equality_ReturnsFalseForDifferentMatrices()
+        public static void Operator_Equality_ReturnsFalseForDifferentMatrices()
         {
                 Complex[,] dataA = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
                 Complex[,] dataB = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(5, 5) } };
@@ -614,7 +611,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Equality_ReturnsFalseForDifferentDimensions()
+        public static void Operator_Equality_ReturnsFalseForDifferentDimensions()
         {
                 CoreMatrix A = new CoreMatrix(2, 2);
                 CoreMatrix B = new CoreMatrix(2, 3);
@@ -623,7 +620,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Equality_ReturnsTrueForBothNull()
+        public static void Operator_Equality_ReturnsTrueForBothNull()
         {
                 CoreMatrix A = null;
                 CoreMatrix B = null;
@@ -632,7 +629,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Equality_ReturnsFalseForOneNull()
+        public static void Operator_Equality_ReturnsFalseForOneNull()
         {
                 CoreMatrix A = new CoreMatrix(2, 2);
                 CoreMatrix B = null;
@@ -642,7 +639,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Inequality_ReturnsTrueForDifferentMatrices()
+        public static void Operator_Inequality_ReturnsTrueForDifferentMatrices()
         {
                 Complex[,] dataA = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
                 Complex[,] dataB = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(5, 5) } };
@@ -653,7 +650,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Operator_Inequality_ReturnsFalseForEqualMatrices()
+        public static void Operator_Inequality_ReturnsFalseForEqualMatrices()
         {
                 Complex[,] dataA = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
                 Complex[,] dataB = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
@@ -664,7 +661,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Transpose_CorrectResult_SquareMatrix_RealNumbers()
+        public static void Transpose_CorrectResult_SquareMatrix_RealNumbers()
         {
                 Complex[,] data = { { new Complex(1, 0), new Complex(2, 0) }, { new Complex(3, 0), new Complex(4, 0) } };
                 CoreMatrix matrix = new CoreMatrix(data);
@@ -674,11 +671,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix transposedMatrix = matrix.Transpose();
 
-                AssertMatricesApproximatelyEqual(expected, transposedMatrix, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, transposedMatrix, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Transpose_CorrectResult_RectangularMatrix_ComplexNumbers()
+        public static void Transpose_CorrectResult_RectangularMatrix_ComplexNumbers()
         {
                 Complex[,] data = {
                         { new Complex(1, 1), new Complex(2, 2), new Complex(3, 3) },
@@ -695,11 +692,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix transposedMatrix = matrix.Transpose();
 
-                AssertMatricesApproximatelyEqual(expected, transposedMatrix, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, transposedMatrix, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void Transpose_CorrectResult_Vector_MixedNumbers()
+        public static void Transpose_CorrectResult_Vector_MixedNumbers()
         {
                 Complex[,] data = { { new Complex(1, 0) }, { new Complex(2, 2) }, { new Complex(3, 0) } };
                 CoreMatrix matrix = new CoreMatrix(data);
@@ -709,11 +706,11 @@ public class MatrixTests : TestUtils
 
                 CoreMatrix transposedMatrix = matrix.Transpose();
 
-                AssertMatricesApproximatelyEqual(expected, transposedMatrix, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(expected, transposedMatrix, TestUtils.TOLERANCE);
         }
 
         [Test]
-        public void ImplicitConversion_MatrixToComplex_CorrectResult_RealNumber()
+        public static void ImplicitConversion_MatrixToComplex_CorrectResult_RealNumber()
         {
                 Complex[,] data = { { new Complex(5.5, 0) } };
                 CoreMatrix matrix = new CoreMatrix(data);
@@ -724,7 +721,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void ImplicitConversion_MatrixToComplex_CorrectResult_ComplexNumber()
+        public static void ImplicitConversion_MatrixToComplex_CorrectResult_ComplexNumber()
         {
                 Complex[,] data = { { new Complex(5.5, -2.1) } };
                 CoreMatrix matrix = new CoreMatrix(data);
@@ -735,7 +732,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void ImplicitConversion_MatrixToComplex_ThrowsArgumentNullExceptionForNullMatrix()
+        public static void ImplicitConversion_MatrixToComplex_ThrowsArgumentNullExceptionForNullMatrix()
         {
                 CoreMatrix matrix = null;
 
@@ -743,7 +740,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void ImplicitConversion_MatrixToComplex_ThrowsInvalidCastExceptionForNon1x1Matrix()
+        public static void ImplicitConversion_MatrixToComplex_ThrowsInvalidCastExceptionForNon1x1Matrix()
         {
                 CoreMatrix matrix = new CoreMatrix(2, 2);
 
@@ -751,7 +748,7 @@ public class MatrixTests : TestUtils
         }
 
         [Test]
-        public void Clone_CreatesDeepCopy()
+        public static void Clone_CreatesDeepCopy()
         {
                 Complex[,] originalData = { { new Complex(1, 1), new Complex(2, 2) }, { new Complex(3, 3), new Complex(4, 4) } };
                 CoreMatrix originalMatrix = new CoreMatrix(originalData);
@@ -759,14 +756,14 @@ public class MatrixTests : TestUtils
                 CoreMatrix clonedMatrix = originalMatrix.Clone();
 
                 Assert.That(clonedMatrix, Is.Not.SameAs(originalMatrix), "Cloned matrix should be a different instance.");
-                AssertMatricesApproximatelyEqual(originalMatrix, clonedMatrix, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(originalMatrix, clonedMatrix, TestUtils.TOLERANCE);
 
                 originalMatrix[0, 0] = new Complex(99, 99);
                 Assert.That(clonedMatrix[0, 0], Is.EqualTo(new Complex(1, 1)), "Cloned matrix element should not change after original modification.");
         }
 
         [Test]
-        public void ToString_ReturnsFormattedString()
+        public static void ToString_ReturnsFormattedString()
         {
                 Complex[,] data = {
                         { new Complex(1, 0), new Complex(2.5, -1.2) },
@@ -782,7 +779,7 @@ public class MatrixTests : TestUtils
 
         [Test]
         [Repeat(50)]
-        public void Operator_Multiply_MatrixMatrix_RandomizedComparisonWithMathNet()
+        public static void Operator_Multiply_MatrixMatrix_RandomizedComparisonWithMathNet()
         {
                 Random rnd = new Random();
                 int rowsA = rnd.Next(2, 5);
@@ -797,7 +794,7 @@ public class MatrixTests : TestUtils
                 {
                         for (int c = 0; c < colsA; c++)
                         {
-                                dataA[r, c] = GetRandomComplex();
+                                dataA[r, c] = TestUtils.GetRandomComplex();
                         }
                 }
 
@@ -805,7 +802,7 @@ public class MatrixTests : TestUtils
                 {
                         for (int c = 0; c < colsB; c++)
                         {
-                                dataB[r, c] = GetRandomComplex();
+                                dataB[r, c] = TestUtils.GetRandomComplex();
                         }
                 }
 
@@ -819,24 +816,24 @@ public class MatrixTests : TestUtils
                 DenseMatrix mathNetResult = mathNetA.Multiply(mathNetB) as DenseMatrix;
 
                 Assert.That(mathNetResult, Is.Not.Null, "MathNet multiplication result was null.");
-                AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TestUtils.TOLERANCE);
         }
 
         [Test]
         [Repeat(50)]
-        public void Operator_Multiply_ScalarMatrix_RandomizedComparisonWithMathNet()
+        public static void Operator_Multiply_ScalarMatrix_RandomizedComparisonWithMathNet()
         {
                 Random rnd = new Random();
                 int rows = rnd.Next(2, 5);
                 int cols = rnd.Next(2, 5);
-                Complex scalar = GetRandomComplex();
+                Complex scalar = TestUtils.GetRandomComplex();
 
                 Complex[,] data = new Complex[rows, cols];
                 for (int r = 0; r < rows; r++)
                 {
                         for (int c = 0; c < cols; c++)
                         {
-                                data[r, c] = GetRandomComplex();
+                                data[r, c] = TestUtils.GetRandomComplex();
                         }
                 }
 
@@ -847,12 +844,12 @@ public class MatrixTests : TestUtils
                 DenseMatrix mathNetResult = mathNetMatrix.Multiply(scalar) as DenseMatrix;
 
                 Assert.That(mathNetResult, Is.Not.Null, "MathNet scalar multiplication result was null.");
-                AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TestUtils.TOLERANCE);
         }
 
         [Test]
         [Repeat(50)]
-        public void Operator_Add_MatrixMatrix_RandomizedComparisonWithMathNet()
+        public static void Operator_Add_MatrixMatrix_RandomizedComparisonWithMathNet()
         {
                 Random rnd = new Random();
                 int rows = rnd.Next(2, 5);
@@ -865,8 +862,8 @@ public class MatrixTests : TestUtils
                 {
                         for (int c = 0; c < cols; c++)
                         {
-                                dataA[r, c] = GetRandomComplex();
-                                dataB[r, c] = GetRandomComplex();
+                                dataA[r, c] = TestUtils.GetRandomComplex();
+                                dataB[r, c] = TestUtils.GetRandomComplex();
                         }
                 }
 
@@ -880,12 +877,12 @@ public class MatrixTests : TestUtils
                 DenseMatrix mathNetResult = mathNetA.Add(mathNetB) as DenseMatrix;
 
                 Assert.That(mathNetResult, Is.Not.Null, "MathNet addition result was null.");
-                AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TestUtils.TOLERANCE);
         }
 
         [Test]
         [Repeat(50)]
-        public void Operator_Subtract_MatrixMatrix_RandomizedComparisonWithMathNet()
+        public static void Operator_Subtract_MatrixMatrix_RandomizedComparisonWithMathNet()
         {
                 Random rnd = new Random();
                 int rows = rnd.Next(2, 5);
@@ -898,8 +895,8 @@ public class MatrixTests : TestUtils
                 {
                         for (int c = 0; c < cols; c++)
                         {
-                                dataA[r, c] = GetRandomComplex();
-                                dataB[r, c] = GetRandomComplex();
+                                dataA[r, c] = TestUtils.GetRandomComplex();
+                                dataB[r, c] = TestUtils.GetRandomComplex();
                         }
                 }
 
@@ -913,12 +910,12 @@ public class MatrixTests : TestUtils
                 DenseMatrix mathNetResult = mathNetA.Subtract(mathNetB) as DenseMatrix;
 
                 Assert.That(mathNetResult, Is.Not.Null, "MathNet subtraction result was null.");
-                AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetResult), customResult, TestUtils.TOLERANCE);
         }
 
         [Test]
         [Repeat(50)]
-        public void Transpose_RandomizedComparisonWithMathNet()
+        public static void Transpose_RandomizedComparisonWithMathNet()
         {
                 Random rnd = new Random();
                 int rows = rnd.Next(2, 5);
@@ -929,7 +926,7 @@ public class MatrixTests : TestUtils
                 {
                         for (int c = 0; c < cols; c++)
                         {
-                                data[r, c] = GetRandomComplex();
+                                data[r, c] = TestUtils.GetRandomComplex();
                         }
                 }
 
@@ -940,6 +937,6 @@ public class MatrixTests : TestUtils
                 DenseMatrix mathNetTransposed = mathNetMatrix.Transpose() as DenseMatrix;
 
                 Assert.That(mathNetTransposed, Is.Not.Null, "MathNet transpose result was null.");
-                AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetTransposed), customTransposed, TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqual(new CoreMatrix(mathNetTransposed), customTransposed, TestUtils.TOLERANCE);
         }
 }

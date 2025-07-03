@@ -1,8 +1,5 @@
-using EigenvalueFinder.Core;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Complex; // Use Complex for Math.NET types
-using System;
-using System.Numerics; // For System.Numerics.Complex
+using MathNet.Numerics.LinearAlgebra.Complex;
+using System.Numerics;
 
 namespace EigenvalueFinder.Core;
 
@@ -16,12 +13,21 @@ public static class QRFinder
         /// <param name="A">The input matrix to decompose.</param>
         /// <returns>A tuple containing the orthogonal matrix Q and the upper triangular matrix R.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the input matrix A is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the input matrix A is not a square matrix.</exception>
         public static QRUtils.QR getQR(EigenvalueFinder.Core.Matrix A)
         {
                 if (A == null)
                 {
                         throw new ArgumentNullException(nameof(A), "Input matrix A cannot be null for QR decomposition.");
                 }
+
+                if (A.RowCount != A.ColumnCount)
+                {
+                        throw new ArgumentException("Input matrix must be a square matrix for QR decomposition.");
+                }
+
+                // Use a small TOLERANCE for comparison due to floating point arithmetic
+                double TOLERANCE = 1e-9;
 
                 // 1. Q := Im, R := A
                 int m = A.RowCount;
@@ -35,7 +41,6 @@ public static class QRFinder
                 {
                         // 3. x := R(j : m, j)
                         // Extract the sub-vector from R. This will be a column vector.
-                        // Math.NET uses 0-based indexing, so j corresponds to j in the algorithm.
                         Matrix x = new Matrix(m - j, 1);
                         for (int row = j; row < m; row++)
                         {
@@ -43,55 +48,48 @@ public static class QRFinder
                         }
 
                         // Calculate ||x||_2
-                        // For a vector x = [x1, x2, ..., xk]^T, ||x||_2 = sqrt(|x1|^2 + |x2|^2 + ... + |xk|^2)
-                        // Using Math.NET's Norm(2) method on the internal DenseMatrix
-                        double x_norm_2 = ((DenseMatrix)x.GetInternalMatrix()).Column(0).L2Norm();
+                        double xNorm2 = ((DenseMatrix)x.GetInternalMatrix()).Column(0).L2Norm();
+
+                        Complex alphaVal;
+                        if (x[0, 0].Equals(Complex.Zero))
+                        {
+                                alphaVal = new Complex(xNorm2, 0); // If x[0,0] is zero, use positive norm
+                        }
+                        else
+                        {
+                                alphaVal = (x[0, 0] / Complex.Abs(x[0, 0])) * new Complex(xNorm2, 0);
+                        }
+                        Complex alpha = -alphaVal;
 
 
                         // e1 is the first standard basis vector of appropriate size (m-j)
                         Matrix e1 = Matrix.Identity(m - j, 0);
 
-                        // Calculate ||x||_2 * e1
-                        Matrix x_norm_2_e1 = new Complex(x_norm_2, 0) * e1;
+                        // Calculate alpha * e1
+                        Matrix alpha_e1 = alpha * e1;
 
-                        // 4. if x != ||x||_2 * e1 then (check for numerical stability, allow for small differences)
-                        // We need to check if x is "approximately not equal" to ||x||_2 * e1
-                        // A common way is to check if the difference between them is significant.
-                        // If x is very close to ||x||_2 * e1, we can skip the Householder reflection.
-                        // This handles the case where the vector is already aligned with e1,
-                        // meaning it has only one non-zero component at the first position.
-
-                        // Calculate the difference and its norm
-                        Matrix diff = x - x_norm_2_e1;
+                        // 4. if x != alpha * e1 then (check for numerical stability, allow for small differences)
+                        // If x is very close to alpha * e1, we can skip the Householder reflection.
+                        Matrix diff = x - alpha_e1;
                         double diff_norm = ((DenseMatrix)diff.GetInternalMatrix()).Column(0).L2Norm();
 
-                        // Use a small epsilon for comparison due to floating point arithmetic
-                        double epsilon = 1e-9;
-
-                        if (diff_norm > epsilon) // If x is not approximately equal to ||x||_2 * e1
+                        if (diff_norm > TOLERANCE) // If x is not approximately equal to alpha * e1
                         {
-                                // 5. x := x - ||x||_2 * e1
-                                x = x - x_norm_2_e1;
+                                // 5. x := x - alpha * e1
+                                x = x - alpha_e1;
 
                                 // 6. H(x) := I_{m-j+1} - (2 / (x^T * x)) * x * x^T
-                                // Calculate x^T * x (dot product of x with itself)
-                                // This will be a 1x1 matrix, which can be implicitly converted to Complex
-                                Complex x_transpose_x = x.Transpose() * x;
+                                Complex xTx = x.Transpose() * x;
 
-                                // If x_transpose_x is very close to zero, it means x was a zero vector
+                                // If xTx is very close to zero, it means x was a zero vector,
                                 // and the reflection would be undefined.
-                                // However, due to the previous 'if' condition, x won't be zero here unless
-                                // there's a numerical issue.
-                                if (Complex.Abs(x_transpose_x) < epsilon)
+                                if (Complex.Abs(xTx) < TOLERANCE)
                                 {
-                                        // This case should ideally not be reached if the above diff_norm check is robust.
-                                        // If it is, it means x is effectively a zero vector, and H(x) should be Identity.
-                                        // For robustness, we can just continue to the next iteration, as Identity * Matrix = Matrix.
                                         continue;
                                 }
 
-                                Matrix H_x_term = (new Complex(2, 0) / x_transpose_x) * x * x.Transpose();
-                                Matrix H_x = Matrix.Identity(m - j) - H_x_term;
+                                Matrix HxTerm = (new Complex(2, 0) / xTx) * x * x.Transpose();
+                                Matrix Hx = Matrix.Identity(m - j) - HxTerm;
 
                                 // 7. H := (I_{j-1}   0)
                                 //         (0       H(x))
@@ -99,11 +97,11 @@ public static class QRFinder
                                 // Then embed H(x) into the bottom-right corner.
                                 Matrix H = Matrix.Identity(m);
 
-                                for (int row = 0; row < H_x.RowCount; row++)
+                                for (int row = 0; row < Hx.RowCount; row++)
                                 {
-                                        for (int col = 0; col < H_x.ColumnCount; col++)
+                                        for (int col = 0; col < Hx.ColumnCount; col++)
                                         {
-                                                H[j + row, j + col] = H_x[row, col];
+                                                H[j + row, j + col] = Hx[row, col];
                                         }
                                 }
 

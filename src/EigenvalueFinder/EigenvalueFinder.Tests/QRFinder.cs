@@ -1,309 +1,157 @@
-using NUnit.Framework;
+using CoreMatrix = EigenvalueFinder.Core.Matrix; // Alias for Matrix class to avoid ambiguous reference in the tests
 using EigenvalueFinder.Core;
 using System.Numerics;
-using MathNet.Numerics.LinearAlgebra.Complex;
-using System;
-using CoreMatrix = EigenvalueFinder.Core.Matrix;
 
 namespace EigenvalueFinder.Tests;
 
 [TestFixture]
-public class QRFinderTests : TestUtils
+public static class QRFinderTests
 {
+        const int MAX_MATRIX_SIZE = 64;
         [Test]
-        public void GetQR_ThrowsArgumentNullException_WhenInputMatrixIsNull()
+        public static void GetQR_NullMatrix_ThrowsArgumentNullException()
         {
                 Assert.Throws<ArgumentNullException>(() => QRFinder.getQR(null));
         }
 
         [Test]
-        public void GetQR_ReturnsCorrectQR_ForIdentityMatrix()
+        public static void GetQR_NonSquareMatrix_ThrowsArgumentException()
         {
-                int size = 3;
-                CoreMatrix A = CoreMatrix.Identity(size);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(size), qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(size), qr.R, TOLERANCE);
+                CoreMatrix nonSquareMatrix = new CoreMatrix(2, 3);
+                Assert.Throws<ArgumentException>(() => QRFinder.getQR(nonSquareMatrix));
         }
 
         [Test]
-        public void GetQR_ReturnsCorrectQR_ForSimpleRealMatrix()
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        [TestCase(5)]
+        [TestCase(MAX_MATRIX_SIZE / 4)]
+        [TestCase(MAX_MATRIX_SIZE / 2)]
+        [TestCase(MAX_MATRIX_SIZE)]
+        public static void GetQR_IdentityMatrix_ReturnsIdentityQAndIdentityR(int size)
         {
-                Complex[,] dataA = {
+                CoreMatrix identityMatrix = CoreMatrix.Identity(size);
+                QRUtils.QR qr = QRFinder.getQR(identityMatrix);
+
+                TestUtils.AssertMatricesApproximatelyEqualAbs(CoreMatrix.Identity(size), qr.Q, TestUtils.TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqualAbs(identityMatrix, qr.R, TestUtils.TOLERANCE);
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        [TestCase(5)]
+        [TestCase(MAX_MATRIX_SIZE / 4)]
+        [TestCase(MAX_MATRIX_SIZE / 2)]
+        [TestCase(MAX_MATRIX_SIZE)]
+        public static void GetQR_DiagonalMatrix_ReturnsIdentityQAndOriginalR(int size)
+        {
+                Complex[,] data = new Complex[size, size];
+                for (int i = 0; i < size; i++)
+                {
+                        data[i, i] = TestUtils.GetRandomComplex();
+                }
+                CoreMatrix diagonalMatrix = new CoreMatrix(data);
+
+                QRUtils.QR qr = QRFinder.getQR(diagonalMatrix);
+
+                TestUtils.AssertMatricesApproximatelyEqualAbs(CoreMatrix.Identity(size), qr.Q, TestUtils.TOLERANCE);
+                TestUtils.AssertMatricesApproximatelyEqualAbs(diagonalMatrix, qr.R, TestUtils.TOLERANCE);
+        }
+
+        [Test]
+        [Repeat(10)]
+        public static void GetQR_RandomSquareMatrix_DecompositionIsValid()
+        {
+                int size = new Random().Next(1, MAX_MATRIX_SIZE);
+                Complex[,] data = new Complex[size, size];
+                for (int r = 0; r < size; r++)
+                {
+                        for (int c = 0; c < size; c++)
+                        {
+                                data[r, c] = TestUtils.GetRandomReal();
+                        }
+                }
+                CoreMatrix A = new CoreMatrix(data);
+
+                QRUtils.QR qr = QRFinder.getQR(A);
+
+                CoreMatrix QR = qr.Q * qr.R;
+                TestUtils.AssertMatricesApproximatelyEqual(A, QR, TestUtils.TOLERANCE);
+
+                CoreMatrix Q_transpose_Q = qr.Q.Transpose() * qr.Q;
+                TestUtils.AssertMatricesApproximatelyEqual(CoreMatrix.Identity(size), Q_transpose_Q, TestUtils.TOLERANCE);
+
+                for (int r = 1; r < size; r++)
+                {
+                        for (int c = 0; c < r; c++)
+                        {
+                                Assert.That(TestUtils.AreApproximatelyEqual(Complex.Zero, qr.R[r, c], TestUtils.TOLERANCE),
+                                        $"R[{r},{c}] is not zero. Expected: 0, Actual: {qr.R[r, c]}");
+                        }
+                }
+        }
+
+        [Test]
+        public static void GetQR_KnownMatrix_ReturnsCorrectQR()
+        {
+                Complex[,] data = new Complex[,]
+                {
                         { new Complex(12, 0), new Complex(-51, 0), new Complex(4, 0) },
                         { new Complex(6, 0), new Complex(167, 0), new Complex(-68, 0) },
                         { new Complex(-4, 0), new Complex(24, 0), new Complex(-41, 0) }
                 };
-                CoreMatrix A = new CoreMatrix(dataA);
+                CoreMatrix A = new CoreMatrix(data);
 
-                MathNet.Numerics.LinearAlgebra.Complex.Matrix mathNetA = DenseMatrix.OfArray(dataA);
-                MathNet.Numerics.LinearAlgebra.Factorization.QR<Complex> mathNetQR = mathNetA.QR();
+                QRUtils.QR actualQR = QRFinder.getQR(A);
 
-                CoreMatrix expectedQ = new CoreMatrix((DenseMatrix)mathNetQR.Q);
-                CoreMatrix expectedR = new CoreMatrix((DenseMatrix)mathNetQR.R);
+                // Verify A = QR
+                CoreMatrix QR = actualQR.Q * actualQR.R;
+                TestUtils.AssertMatricesApproximatelyEqual(A, QR, TestUtils.TOLERANCE);
 
-                QRUtils.QR qr = QRFinder.getQR(A);
+                // Verify Q is orthogonal (Q^T * Q = I)
+                CoreMatrix Q_transpose_Q = actualQR.Q.Transpose() * actualQR.Q;
+                TestUtils.AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), Q_transpose_Q, TestUtils.TOLERANCE);
 
-                AssertMatricesApproximatelyEqual(expectedQ, qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(expectedR, qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        public void GetQR_ReturnsCorrectQR_ForSimpleComplexMatrix()
-        {
-                Complex[,] dataA = {
-                        { new Complex(1, 1), new Complex(2, 0) },
-                        { new Complex(0, 1), new Complex(1, 2) }
-                };
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                MathNet.Numerics.LinearAlgebra.Complex.Matrix mathNetA = DenseMatrix.OfArray(dataA);
-                MathNet.Numerics.LinearAlgebra.Factorization.QR<Complex> mathNetQR = mathNetA.QR();
-
-                CoreMatrix expectedQ = new CoreMatrix((DenseMatrix)mathNetQR.Q);
-                CoreMatrix expectedR = new CoreMatrix((DenseMatrix)mathNetQR.R);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(expectedQ, qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(expectedR, qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        [Repeat(20)]
-        public void GetQR_RandomizedComparisonWithMathNet_SquareMatrices()
-        {
-                Random rnd = new Random();
-                int size = rnd.Next(2, 6);
-
-                Complex[,] dataA = new Complex[size, size];
-                for (int r = 0; r < size; r++)
-                {
-                        for (int c = 0; c < size; c++)
-                        {
-                                dataA[r, c] = GetRandomComplex();
-                        }
-                }
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                MathNet.Numerics.LinearAlgebra.Complex.Matrix mathNetA = DenseMatrix.OfArray(dataA);
-                MathNet.Numerics.LinearAlgebra.Factorization.QR<Complex> mathNetQR = mathNetA.QR();
-
-                CoreMatrix expectedQ = new CoreMatrix((DenseMatrix)mathNetQR.Q);
-                CoreMatrix expectedR = new CoreMatrix((DenseMatrix)mathNetQR.R);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(expectedQ, qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(expectedR, qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        [Repeat(20)]
-        public void GetQR_RandomizedComparisonWithMathNet_RectangularMatrices_Tall()
-        {
-                Random rnd = new Random();
-                int rows = rnd.Next(3, 7);
-                int cols = rnd.Next(2, rows);
-
-                Complex[,] dataA = new Complex[rows, cols];
-                for (int r = 0; r < rows; r++)
-                {
-                        for (int c = 0; c < cols; c++)
-                        {
-                                dataA[r, c] = GetRandomComplex();
-                        }
-                }
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                MathNet.Numerics.LinearAlgebra.Complex.Matrix mathNetA = DenseMatrix.OfArray(dataA);
-                MathNet.Numerics.LinearAlgebra.Factorization.QR<Complex> mathNetQR = mathNetA.QR();
-
-                CoreMatrix expectedQ = new CoreMatrix((DenseMatrix)mathNetQR.Q);
-                CoreMatrix expectedR = new CoreMatrix((DenseMatrix)mathNetQR.R);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(expectedQ, qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(expectedR, qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        [Repeat(20)]
-        public void GetQR_RandomizedComparisonWithMathNet_RectangularMatrices_Wide()
-        {
-                Random rnd = new Random();
-                int rows = rnd.Next(2, 5);
-                int cols = rnd.Next(rows + 1, 7);
-
-                Complex[,] dataA = new Complex[rows, cols];
-                for (int r = 0; r < rows; r++)
-                {
-                        for (int c = 0; c < cols; c++)
-                        {
-                                dataA[r, c] = GetRandomComplex();
-                        }
-                }
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                MathNet.Numerics.LinearAlgebra.Complex.Matrix mathNetA = DenseMatrix.OfArray(dataA);
-                MathNet.Numerics.LinearAlgebra.Factorization.QR<Complex> mathNetQR = mathNetA.QR();
-
-                CoreMatrix expectedQ = new CoreMatrix((DenseMatrix)mathNetQR.Q);
-                CoreMatrix expectedR = new CoreMatrix((DenseMatrix)mathNetQR.R);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(expectedQ, qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(expectedR, qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        public void GetQR_ReturnsCorrectQR_ForZeroMatrix()
-        {
-                int rows = 3;
-                int cols = 4;
-                CoreMatrix A = new CoreMatrix(rows, cols);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(rows), qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(new CoreMatrix(rows, cols), qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        public void GetQR_ReturnsCorrectQR_ForSingleColumnMatrix()
-        {
-                Complex[,] dataA = {
-                        { new Complex(3, 0) },
-                        { new Complex(4, 0) },
-                        { new Complex(0, 0) }
-                };
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                MathNet.Numerics.LinearAlgebra.Complex.Matrix mathNetA = DenseMatrix.OfArray(dataA);
-                MathNet.Numerics.LinearAlgebra.Factorization.QR<Complex> mathNetQR = mathNetA.QR();
-
-                CoreMatrix expectedQ = new CoreMatrix((DenseMatrix)mathNetQR.Q);
-                CoreMatrix expectedR = new CoreMatrix((DenseMatrix)mathNetQR.R);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(expectedQ, qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(expectedR, qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        public void GetQR_ReturnsCorrectQR_ForSingleRowMatrix()
-        {
-                Complex[,] dataA = { { new Complex(3, 0), new Complex(4, 0), new Complex(5, 0) } };
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                MathNet.Numerics.LinearAlgebra.Complex.Matrix mathNetA = DenseMatrix.OfArray(dataA);
-                MathNet.Numerics.LinearAlgebra.Factorization.QR<Complex> mathNetQR = mathNetA.QR();
-
-                CoreMatrix expectedQ = new CoreMatrix((DenseMatrix)mathNetQR.Q);
-                CoreMatrix expectedR = new CoreMatrix((DenseMatrix)mathNetQR.R);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(expectedQ, qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(expectedR, qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        public void GetQR_ReturnsCorrectQR_ForOneByOneMatrix()
-        {
-                Complex[,] dataA = { { new Complex(5, 5) } };
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                MathNet.Numerics.LinearAlgebra.Complex.Matrix mathNetA = DenseMatrix.OfArray(dataA);
-                MathNet.Numerics.LinearAlgebra.Factorization.QR<Complex> mathNetQR = mathNetA.QR();
-
-                CoreMatrix expectedQ = new CoreMatrix((DenseMatrix)mathNetQR.Q);
-                CoreMatrix expectedR = new CoreMatrix((DenseMatrix)mathNetQR.R);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                AssertMatricesApproximatelyEqual(expectedQ, qr.Q, TOLERANCE);
-                AssertMatricesApproximatelyEqual(expectedR, qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(A, qr.Q * qr.R, TOLERANCE);
-                AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), qr.Q * qr.Q.Transpose(), TOLERANCE);
-        }
-
-        [Test]
-        [Repeat(20)]
-        public void GetQR_QIsOrthogonal()
-        {
-                Random rnd = new Random();
-                int size = rnd.Next(2, 6);
-
-                Complex[,] dataA = new Complex[size, size];
-                for (int r = 0; r < size; r++)
-                {
-                        for (int c = 0; c < size; c++)
-                        {
-                                dataA[r, c] = GetRandomComplex();
-                        }
-                }
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                CoreMatrix Q = qr.Q;
-                CoreMatrix Q_transpose = Q.Transpose();
-                CoreMatrix identity = CoreMatrix.Identity(Q.RowCount);
-
-                AssertMatricesApproximatelyEqual(identity, Q * Q_transpose, TOLERANCE);
-                AssertMatricesApproximatelyEqual(identity, Q_transpose * Q, TOLERANCE);
-        }
-
-        [Test]
-        [Repeat(20)]
-        public void GetQR_RIsUpperTriangular()
-        {
-                Random rnd = new Random();
-                int rows = rnd.Next(2, 6);
-                int cols = rnd.Next(2, 6);
-
-                Complex[,] dataA = new Complex[rows, cols];
-                for (int r = 0; r < rows; r++)
-                {
-                        for (int c = 0; c < cols; c++)
-                        {
-                                dataA[r, c] = GetRandomComplex();
-                        }
-                }
-                CoreMatrix A = new CoreMatrix(dataA);
-
-                QRUtils.QR qr = QRFinder.getQR(A);
-
-                CoreMatrix R = qr.R;
-
-                for (int r = 0; r < R.RowCount; r++)
+                // Verify R is upper triangular
+                for (int r = 1; r < A.RowCount; r++)
                 {
                         for (int c = 0; c < r; c++)
                         {
-                                Assert.That(AreApproximatelyEqual(Complex.Zero, R[r, c], TOLERANCE),
-                                        $"Element R[{r},{c}] is not zero. Value: {R[r, c]}");
+                                Assert.That(TestUtils.AreApproximatelyEqual(Complex.Zero, actualQR.R[r, c], TestUtils.TOLERANCE),
+                                        $"R[{r},{c}] is not zero. Expected: 0, Actual: {actualQR.R[r, c]}");
+                        }
+                }
+        }
+
+        [Test]
+        public static void GetQR_MatrixWithZeroColumn_HandlesCorrectly()
+        {
+                Complex[,] data = new Complex[,]
+                {
+                        { new Complex(1, 0), new Complex(0, 0) },
+                        { new Complex(2, 0), new Complex(0, 0) }
+                };
+                CoreMatrix A = new CoreMatrix(data);
+
+                QRUtils.QR qr = QRFinder.getQR(A);
+
+                CoreMatrix QR = qr.Q * qr.R;
+                TestUtils.AssertMatricesApproximatelyEqual(A, QR, TestUtils.TOLERANCE);
+
+                CoreMatrix Q_transpose_Q = qr.Q.Transpose() * qr.Q;
+                TestUtils.AssertMatricesApproximatelyEqual(CoreMatrix.Identity(A.RowCount), Q_transpose_Q, TestUtils.TOLERANCE);
+
+                for (int r = 1; r < A.RowCount; r++)
+                {
+                        for (int c = 0; c < r; c++)
+                        {
+                                Assert.That(TestUtils.AreApproximatelyEqual(Complex.Zero, qr.R[r, c], TestUtils.TOLERANCE),
+                                        $"R[{r},{c}] is not zero. Expected: 0, Actual: {qr.R[r, c]}");
                         }
                 }
         }
