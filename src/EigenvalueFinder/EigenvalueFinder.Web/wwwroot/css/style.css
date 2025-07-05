@@ -161,6 +161,7 @@ label {
 	border-radius: var(--border-radius-medium);
 	width: 90%;
 	max-width: 300px;
+	box-sizing: border-box; /* Added to include padding in width */
 
 	/* Background & Color */
 	background-color: var(--bg-light);
@@ -206,7 +207,16 @@ label {
 
 	/* Overflow */
 	overflow-x: auto;
+	white-space: pre-wrap; /* Allows text to wrap within <pre> */
+	word-wrap: break-word; /* Ensures long words break if necessary */
 }
+
+.info-popup pre a {
+	color: var(--text-accent-green); /* Link color in preformatted text */
+	text-decoration: underline;
+	word-break: break-all; /* Allow text to break within the link if it's too long */
+}
+
 
 textarea {
 	/* Box Model */
@@ -312,4 +322,62 @@ textarea.invalid {
 	background-color: var(--focus-orange); /* Don't change color on hover when disabled */
 	transform: none;
 	box-shadow: none;
+}
+
+.about-link-container {
+	/* Layout & Position */
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	z-index: 20;
+}
+
+.about-link {
+	/* Color & Typography */
+	color: var(--bg-light); /* Darker text */
+	text-decoration: none;
+	font-size: 0.9em;
+
+	/* Interactivity */
+	transition: color 0.2s ease;
+}
+
+.about-link:hover {
+	color: var(--text-primary); /* Lighter on hover */
+}
+
+#info-about-popup {
+	/* Position */
+	top: calc(100% + 5px);
+	left: 0;
+	transform: translateX(0);
+
+	/* Box Model */
+	width: 250px;
+	max-width: none;
+	box-sizing: border-box;
+}
+
+
+#info-about-popup p {
+	/* Box Model */
+	margin-bottom: 8px;
+
+	/* Typography */
+	font-size: 0.95em;
+	color: var(--text-primary);
+}
+
+#info-about-popup pre {
+	/* Box Model */
+	margin-top: 5px;
+	margin-bottom: 10px;
+
+	/* Overflow */
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-wrap: break-word;
 }
