@@ -273,7 +273,20 @@ textarea.invalid {
 	margin-top: 10px;
 	margin-bottom: 20px;
 	min-height: 1.2em;
+	/* Initial state for animation */
+	opacity: 0;
+	transform: translateY(10px);
+	transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Added transition for smooth fade out */
 }
+
+.results-display.animate-in {
+	animation: fadeInSlideUp 0.5s ease-out forwards;
+}
+
+.results-display.animate-out {
+	animation: fadeOutSlideDown 0.3s ease-in forwards;
+}
+
 
 .solve-button {
 	/* Layout */
@@ -380,4 +393,27 @@ textarea.invalid {
 	overflow-x: auto;
 	white-space: pre-wrap;
 	word-wrap: break-word;
+}
+
+/* Keyframes for the results animation */
+@keyframes fadeInSlideUp {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeOutSlideDown {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(10px); /* Move down as it fades out */
+	}
 }

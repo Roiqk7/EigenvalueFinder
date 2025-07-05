@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
 	const matrixInput = document.getElementById('matrix-input');
 	const errorMessageDisplay = document.getElementById('error-message');
-	const solveButton = document.getElementById('solve-button'); // Get reference to the solve button
+	const solveButton = document.getElementById('solve-button');
+	const resultsDisplay = document.getElementById('results-display');
 
 	// Event listener for matrix input validation
 	matrixInput.addEventListener('input', validateMatrixFormat);
@@ -20,10 +21,30 @@ document.addEventListener('DOMContentLoaded', function() {
 		let isValid = true;
 		let message = '';
 
+		// Check if results are currently visible and input is changing
+		if (resultsDisplay.innerHTML.trim() !== '' && !resultsDisplay.classList.contains('animate-out')) {
+			// If results are present, trigger fade-out animation
+			resultsDisplay.classList.add('animate-out');
+			// Listen for the end of the animation to clear content
+			resultsDisplay.addEventListener('animationend', function handler() {
+				resultsDisplay.innerHTML = ''; // Clear content after animation
+				resultsDisplay.classList.remove('animate-out'); // Remove animation class
+				resultsDisplay.removeEventListener('animationend', handler); // Remove listener to prevent multiple calls
+			}, { once: true }); // Ensure the event listener is removed after it fires once
+		}
+
+
 		if (inputText === '')
 		{
 			isValid = false;
 			matrixInput.classList.remove('invalid');
+			// If input is empty, ensure results are cleared immediately if not already fading out
+			if (!resultsDisplay.classList.contains('animate-out')) {
+				resultsDisplay.innerHTML = '';
+				resultsDisplay.classList.remove('animate-in'); // Also remove 'animate-in' if it was there
+				resultsDisplay.style.opacity = '0'; // Reset for future animations
+				resultsDisplay.style.transform = 'translateY(10px)'; // Reset for future animations
+			}
 		}
 		else
 		{

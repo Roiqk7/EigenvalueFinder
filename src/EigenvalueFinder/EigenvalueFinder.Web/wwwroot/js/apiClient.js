@@ -45,6 +45,13 @@ document.addEventListener('DOMContentLoaded', function() {
 		// --- Display a loading message ---
 		errorMessageDisplay.textContent = ''; // Clear any previous error messages
 		resultsDisplay.innerHTML = '<p>Calculating eigenvalues and eigenvectors...</p>';
+		// Remove any existing animation class immediately to reset the state for new animation
+		resultsDisplay.classList.remove('animate-in');
+		// Ensure initial opacity and transform are set for re-triggering animation
+		resultsDisplay.style.opacity = '0';
+		resultsDisplay.style.transform = 'translateY(10px)';
+
+
 		solveButton.disabled = true; // Disable button during calculation
 		solveButton.classList.add('disabled');
 
@@ -69,7 +76,12 @@ document.addEventListener('DOMContentLoaded', function() {
 				catch (e) {
 					errorMessage = errorText || errorMessage;
 				}
-				throw new Error(errorMessage);
+				errorMessageDisplay.textContent = 'Error: ' + errorMessage;
+				resultsDisplay.textContent = ''; // Clear loading message on error
+				resultsDisplay.classList.remove('animate-in');
+				resultsDisplay.style.opacity = '0';
+				resultsDisplay.style.transform = 'translateY(10px)';
+				return; // Exit the function here as an error occurred
 			}
 
 			const data = await response.json();
@@ -108,6 +120,14 @@ document.addEventListener('DOMContentLoaded', function() {
 				}
 
 				resultsDisplay.innerHTML = resultsHtml;
+
+				// Trigger the animation after setting the content
+				// A small setTimeout ensures the browser has time to render the initial state
+				// before applying the animation class, making the animation re-trigger correctly.
+				setTimeout(() => {
+					resultsDisplay.classList.add('animate-in');
+				}, 10); // A minimal delay (e.g., 10ms) is often sufficient
+
 			}
 			else {
 				resultsDisplay.textContent = 'Error: Invalid response format from API. Expected "eigenpairs" array.';
@@ -118,6 +138,10 @@ document.addEventListener('DOMContentLoaded', function() {
 			console.error('Fetch error:', error);
 			errorMessageDisplay.textContent = 'Error: ' + error.message;
 			resultsDisplay.textContent = ''; // Clear loading message on error
+			// Ensure animation class is removed on error
+			resultsDisplay.classList.remove('animate-in');
+			resultsDisplay.style.opacity = '0';
+			resultsDisplay.style.transform = 'translateY(10px)';
 		}
 		finally {
 			if (typeof validateMatrixFormat === 'function') {
