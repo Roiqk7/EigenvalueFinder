@@ -2,5 +2,5 @@ namespace EigenvalueFinder.WebAPI.Models;
 
 public class MatrixRequest
 {
-        public required double[,] Matrix { get; set; }
+        public List<List<double>> Matrix { get; set; }
 }

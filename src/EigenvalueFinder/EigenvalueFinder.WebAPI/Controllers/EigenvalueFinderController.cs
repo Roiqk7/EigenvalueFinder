@@ -20,11 +20,27 @@ public class EigenvalueController : ControllerBase
                 }
 
                 Matrix matrix = new Matrix(request.Matrix);
-                List<QRUtils.Eigenpair> eigenpairs = new List<QRUtils.Eigenpair>();
+                List<Models.Eigenpair> webApiEigenpairs = new List<Models.Eigenpair>();
 
                 try
                 {
                          // eigenpairs = QRSolver.FindEigenpairs(matrix)
+                         // DELETE: Testing placeholder
+                         double e1 = 1;
+                         double e2 = 2;
+                         double e3 = 3;
+
+                         List<double> v1 = new List<double> { 1, 0, 0 };
+                         List<double> v2 = new List<double> { 0, 1, 0 };
+                         List<double> v3 = new List<double> { 0, 0, 1 };
+
+                         var eigenpair1 = new Eigenpair(e1, v1);
+                         var eigenpair2 = new Eigenpair(e2, v2);
+                         var eigenpair3 = new Eigenpair(e3, v3);
+
+                         webApiEigenpairs.Add(eigenpair1);
+                         webApiEigenpairs.Add(eigenpair2);
+                         webApiEigenpairs.Add(eigenpair3);
                 }
                 catch (Exception ex)
                 {
@@ -33,11 +49,7 @@ public class EigenvalueController : ControllerBase
                         return StatusCode(500, "An error occurred during eigenvalue calculation.");
                 }
 
-                // --- TODO: Prepare the API response with the calculated eigenpairs ---
-                var response = new EigenvalueResponse
-                {
-                        // TODO: Convert the .Core eigenvalues to .WebAPI eigenvalues
-                };
+                var response = new EigenvalueResponse(webApiEigenpairs);
 
                 return Ok(response);
         }

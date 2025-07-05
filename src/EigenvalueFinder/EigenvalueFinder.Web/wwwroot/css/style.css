@@ -167,6 +167,15 @@ textarea.invalid {
 	min-height: 1.2em;
 }
 
+.results-display {
+	color: #a6e22e;
+	font-size: 1.05em;
+	font-weight: bold;
+	margin-top: 10px;
+	margin-bottom: 20px;
+	min-height: 1.2em;
+}
+
 .solve-button {
 	background-color: #fd971f;
 	color: #272822;

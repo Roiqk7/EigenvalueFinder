@@ -47,22 +47,22 @@ public class Matrix
         /// </summary>
         /// <param name="data">The 2D array of matrix elements.</param>
         /// <exception cref="ArgumentNullException">Thrown if the data array is null.</exception>
-        public Matrix(double[,] data)
+        public Matrix(List<List<double>> data)
         {
                 if (data == null)
                 {
                         throw new ArgumentNullException(nameof(data), "Data array cannot be null.");
                 }
 
-                int rows = data.GetLength(0);
-                int cols = data.GetLength(1);
+                int rows = data.Count;
+                int cols = data[0].Count;
                 var complexData = new Complex[rows, cols];
 
                 for (int i = 0; i < rows; i++)
                 {
                         for (int j = 0; j < cols; j++)
                         {
-                                complexData[i, j] = new Complex(data[i, j], 0.0);
+                                complexData[i, j] = new Complex(data[i][j], 0.0);
                         }
                 }
 
