@@ -1,119 +1,188 @@
+/* Define CSS Variables for colors and other common values */
+:root {
+	--bg-dark: #272822; /* Main background */
+	--bg-medium: #383830; /* Container background */
+	--bg-light: #49483e; /* Info popup background */
+	--text-primary: #f8f8f2; /* Main text color */
+	--text-accent-green: #a6e22e; /* Accent green for paragraphs, pre, hover states */
+	--text-accent-yellow: #ffff55; /* Header background, a brighter accent */
+	--text-dark: #49483e; /* Text color for header (on yellow background) */
+	--border-blue: #3f361d; /* Textarea border */
+	--focus-orange: #fd971f; /* Textarea focus border, solve button */
+	--hover-yellow: #f4d03f; /* Solve button hover */
+	--error-red: #ff0000; /* Error messages */
+	--error-bg-dark: #382222; /* Invalid textarea background */
+
+	--shadow-light: rgba(0, 0, 0, 0.3);
+	--shadow-medium: rgba(0, 0, 0, 0.4);
+	--shadow-dark: rgba(0, 0, 0, 0.5);
+	--shadow-focus: rgba(253, 151, 31, 0.5);
+
+	--border-radius-small: 4px;
+	--border-radius-medium: 8px;
+	--border-radius-large: 12px;
+}
+
 body {
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	/* Layout & Position */
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
 	min-height: 100vh;
+
+	/* Box Model */
 	margin: 0;
-	background-color: #272822;
-	color: #f8f8f2;
 	padding: 20px;
 	box-sizing: border-box;
+
+	/* Background & Color */
+	background-color: var(--bg-dark);
+	color: var(--text-primary);
+
+	/* Typography */
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .container {
-	background-color: #383830;
+	/* Box Model */
 	padding: 30px 40px;
-	border-radius: 12px;
-	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+	border-radius: var(--border-radius-large);
 	width: 100%;
 	max-width: 600px;
+	border: 1px solid rgba(var(--text-primary), 0.05);
+
+	/* Background & Shadow */
+	background-color: var(--bg-medium);
+	box-shadow: 0 8px 20px var(--shadow-medium);
+
+	/* Text */
 	text-align: center;
-	border: 1px solid rgba(248, 248, 242, 0.05);
 }
 
 header {
-	background-color: #ffff55;
-	color: #49483e;
+	/* Box Model */
 	padding: 15px 0;
-	border-radius: 8px;
 	margin-bottom: 25px;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+	border-radius: var(--border-radius-medium);
+
+	/* Background & Color */
+	background-color: var(--text-accent-yellow);
+	color: var(--text-dark);
+	box-shadow: 0 4px 10px var(--shadow-light);
 }
 
 h1 {
+	/* Box Model */
 	margin: 0;
+
+	/* Typography */
 	font-size: 2.2em;
 	font-weight: 700;
 	letter-spacing: 0.05em;
+
+	/* Interactivity */
+	transition: transform 0.3s ease, color 0.3s ease;
+}
+
+h1:hover {
+	transform: scale(1.03);
+	color: var(--text-dark);
+	text-shadow: 0 0 8px rgba(255, 255, 85, 0.6);
 }
 
 p {
+	/* Typography */
 	font-size: 1.1em;
-	margin-bottom: 20px;
-	color: #a6e22e;
-}
+	color: var(--text-accent-green);
 
-.matrix-table-placeholder {
-	min-height: 150px;
-	border: 2px dashed #66d9ef;
-	border-radius: 8px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	color: #ae81ff;
-	font-style: italic;
-	margin-bottom: 30px;
-	background-color: #49483e;
+	/* Box Model */
+	margin-bottom: 20px;
 }
 
 .label-container {
+	/* Layout & Position */
 	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+
+	/* Box Model */
 	margin-bottom: 15px;
 }
 
 label {
+	/* Typography */
 	font-size: 1.1em;
-	color: #f8f8f2;
+	color: var(--text-primary);
+
+	/* Box Model */
 	margin-right: 10px;
 }
 
 .info-icon {
-	background-color: #66d9ef;
-	color: #272822;
-	border-radius: 50%;
+	/* Box Model */
 	width: 20px;
 	height: 20px;
+	border-radius: 50%;
+
+	/* Layout */
 	display: flex;
 	justify-content: center;
 	align-items: center;
+
+	/* Background & Color */
+	background-color: var(--text-primary);
+	color: var(--bg-dark);
+
+	/* Typography */
 	font-size: 0.9em;
 	font-weight: bold;
+
+	/* Interaction */
 	cursor: pointer;
 	transition: background-color 0.2s ease;
 }
 
 .info-icon:hover {
-	background-color: #ae81ff;
+	background-color: var(--text-accent-green);
 }
 
 .info-popup {
+	/* Position */
 	position: absolute;
 	top: 100%;
 	left: 50%;
 	transform: translateX(-50%);
-	background-color: #49483e;
-	color: #f8f8f2;
-	padding: 15px;
-	border-radius: 8px;
-	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 	z-index: 10;
+
+	/* Box Model */
+	padding: 15px;
+	border-radius: var(--border-radius-medium);
 	width: 90%;
 	max-width: 300px;
+
+	/* Background & Color */
+	background-color: var(--bg-light);
+	color: var(--text-primary);
+	box-shadow: 0 5px 15px var(--shadow-dark);
+
+	/* Text */
 	text-align: left;
+
+	/* Visibility */
 	opacity: 0;
 	visibility: hidden;
 	transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .info-popup p {
+	/* Box Model */
 	margin-bottom: 8px;
+
+	/* Typography */
 	font-size: 0.95em;
-	color: #f8f8f2;
+	color: var(--text-primary);
 }
 
 .info-popup p:last-child {
@@ -121,85 +190,114 @@ label {
 }
 
 .info-popup pre {
-	background-color: #272822;
+	/* Box Model */
 	padding: 8px;
-	border-radius: 4px;
-	font-family: 'Consolas', 'Monaco', monospace;
-	font-size: 0.85em;
-	overflow-x: auto;
+	border-radius: var(--border-radius-small);
 	margin-top: 5px;
 	margin-bottom: 10px;
-	color: #a6e22e;
+
+	/* Background & Color */
+	background-color: var(--bg-dark);
+	color: var(--text-accent-green);
+
+	/* Typography */
+	font-family: 'Consolas', 'Monaco', monospace;
+	font-size: 0.85em;
+
+	/* Overflow */
+	overflow-x: auto;
 }
 
-
 textarea {
+	/* Box Model */
 	width: calc(100% - 20px);
 	padding: 10px;
 	margin-bottom: 25px;
-	border: 1px solid #66d9ef;
-	border-radius: 8px;
-	background-color: #272822;
-	color: #f8f8f2;
-	font-size: 1em;
-	resize: vertical;
+	border: 1px solid var(--border-blue);
+	border-radius: var(--border-radius-medium);
 	min-height: 120px;
-	box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+	box-sizing: border-box; /* Ensure padding is included in the width */
+
+	/* Background & Color */
+	background-color: var(--bg-dark);
+	color: var(--text-primary);
+
+	/* Typography */
+	font-size: 1em;
+
+	/* Interactivity */
+	resize: vertical;
+	box-shadow: inset 0 2px 5px var(--shadow-light);
 	outline: none;
 	transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 textarea:focus {
-	border-color: #fd971f;
-	box-shadow: 0 0 0 3px rgba(253, 151, 31, 0.5);
+	border-color: var(--focus-orange);
+	box-shadow: 0 0 0 3px var(--shadow-focus);
 }
 
 textarea.invalid {
-	border: 2px solid #ff0000;
-	background-color: #382222;
+	border: 2px solid var(--error-red);
+	background-color: var(--error-bg-dark);
 }
 
 .error-message {
-	color: #ff0000;
+	/* Typography */
+	color: var(--error-red);
 	font-size: 0.9em;
+
+	/* Box Model */
 	margin-top: -15px;
 	margin-bottom: 15px;
 	min-height: 1.2em;
 }
 
 .results-display {
-	color: #a6e22e;
+	/* Typography */
+	color: var(--text-accent-green);
 	font-size: 1.05em;
 	font-weight: bold;
+
+	/* Box Model */
 	margin-top: 10px;
 	margin-bottom: 20px;
 	min-height: 1.2em;
 }
 
 .solve-button {
-	background-color: #fd971f;
-	color: #272822;
-	padding: 12px 25px;
-	border: none;
-	border-radius: 8px;
-	font-size: 1.1em;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+	/* Layout */
 	display: block;
 	width: fit-content;
-	margin: 25px auto 0 auto;
+
+	/* Box Model */
+	padding: 12px 25px;
+	border: none;
+	border-radius: var(--border-radius-medium);
+	margin: 25px auto 0 auto; /* Center the button */
+
+	/* Background & Color */
+	background-color: var(--focus-orange);
+	color: var(--bg-dark);
+	box-shadow: 0 4px 10px var(--shadow-light);
+
+	/* Typography */
+	font-size: 1.1em;
+
+	/* Interaction */
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
 .solve-button:hover {
-	background-color: #f4d03f;
+	background-color: var(--hover-yellow);
 	transform: translateY(-2px);
-	box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+	box-shadow: 0 6px 15px var(--shadow-medium);
 }
 
 .solve-button:active {
 	transform: translateY(0);
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 2px 5px var(--shadow-light);
 }
 
 .solve-button.disabled {
@@ -207,11 +305,11 @@ textarea.invalid {
 	cursor: not-allowed;
 	box-shadow: none;
 	transform: none;
-	background-color: #fd971f;
+	background-color: var(--focus-orange); /* Keep original color but with opacity */
 }
 
 .solve-button.disabled:hover {
-	background-color: #fd971f;
+	background-color: var(--focus-orange); /* Don't change color on hover when disabled */
 	transform: none;
 	box-shadow: none;
 }
