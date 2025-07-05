@@ -1,0 +1,7 @@
+namespace EigenvalueFinder.WebAPI.Models;
+
+public class Eigenpair
+{
+        public double Eigenvalue { get; set; }
+        public List<double> Eigenvector { get; set; }
+}

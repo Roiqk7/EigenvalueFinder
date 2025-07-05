@@ -47,6 +47,34 @@ public class Matrix
         /// </summary>
         /// <param name="data">The 2D array of matrix elements.</param>
         /// <exception cref="ArgumentNullException">Thrown if the data array is null.</exception>
+        public Matrix(double[,] data)
+        {
+                if (data == null)
+                {
+                        throw new ArgumentNullException(nameof(data), "Data array cannot be null.");
+                }
+
+                int rows = data.GetLength(0);
+                int cols = data.GetLength(1);
+                var complexData = new Complex[rows, cols];
+
+                for (int i = 0; i < rows; i++)
+                {
+                        for (int j = 0; j < cols; j++)
+                        {
+                                complexData[i, j] = new Complex(data[i, j], 0.0);
+                        }
+                }
+
+                m_internalMatrix = DenseMatrix.OfArray(complexData);
+        }
+
+        /// <summary>
+        /// Creates a matrix from a 2D array of complex numbers.
+        /// </summary>
+        /// <param name="data">The 2D array of matrix elements.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the data array is null.</exception>
+        /// <remarks>Actual complex numbers should not be used as an input to QRSolver.</remarks>
         public Matrix(Complex[,] data)
         {
                 m_internalMatrix = DenseMatrix.OfArray(data ?? throw new ArgumentNullException(nameof(data), "Data array cannot be null."));
