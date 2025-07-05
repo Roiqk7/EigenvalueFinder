@@ -255,7 +255,7 @@ textarea.invalid {
 .error-message {
 	/* Typography */
 	color: var(--error-red);
-	font-size: 0.9em;
+	font-size: 1.0em;
 
 	/* Box Model */
 	margin-top: -15px;
@@ -352,7 +352,7 @@ textarea.invalid {
 	/* Color & Typography */
 	color: var(--bg-light); /* Darker text */
 	text-decoration: none;
-	font-size: 0.9em;
+	font-size: 1.2em;
 
 	/* Interactivity */
 	transition: color 0.2s ease;
