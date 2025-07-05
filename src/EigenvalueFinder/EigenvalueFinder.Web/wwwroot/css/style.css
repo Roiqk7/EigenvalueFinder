@@ -58,18 +58,86 @@ p {
 	background-color: #49483e;
 }
 
+.label-container {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 15px;
+}
+
 label {
 	font-size: 1.1em;
 	color: #f8f8f2;
-	margin-bottom: 15px;
-	display: block;
+	margin-right: 10px;
 }
+
+.info-icon {
+	background-color: #66d9ef;
+	color: #272822;
+	border-radius: 50%;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 0.9em;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.info-icon:hover {
+	background-color: #ae81ff;
+}
+
+.info-popup {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: #49483e;
+	color: #f8f8f2;
+	padding: 15px;
+	border-radius: 8px;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+	z-index: 10;
+	width: 90%;
+	max-width: 300px;
+	text-align: left;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.info-popup p {
+	margin-bottom: 8px;
+	font-size: 0.95em;
+	color: #f8f8f2;
+}
+
+.info-popup p:last-child {
+	margin-bottom: 0;
+}
+
+.info-popup pre {
+	background-color: #272822;
+	padding: 8px;
+	border-radius: 4px;
+	font-family: 'Consolas', 'Monaco', monospace;
+	font-size: 0.85em;
+	overflow-x: auto;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	color: #a6e22e;
+}
+
 
 textarea {
 	width: calc(100% - 20px);
 	padding: 10px;
 	margin-bottom: 25px;
-	border: 1px solid #000000;
+	border: 1px solid #66d9ef;
 	border-radius: 8px;
 	background-color: #272822;
 	color: #f8f8f2;
@@ -78,11 +146,25 @@ textarea {
 	min-height: 120px;
 	box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
 	outline: none;
+	transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 textarea:focus {
 	border-color: #fd971f;
 	box-shadow: 0 0 0 3px rgba(253, 151, 31, 0.5);
+}
+
+textarea.invalid {
+	border: 2px solid #ff0000;
+	background-color: #382222;
+}
+
+.error-message {
+	color: #ff0000;
+	font-size: 0.9em;
+	margin-top: -15px;
+	margin-bottom: 15px;
+	min-height: 1.2em;
 }
 
 .solve-button {
@@ -93,7 +175,7 @@ textarea:focus {
 	border-radius: 8px;
 	font-size: 1.1em;
 	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+	transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease;
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 	display: block;
 	width: fit-content;
@@ -109,4 +191,18 @@ textarea:focus {
 .solve-button:active {
 	transform: translateY(0);
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.solve-button.disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	box-shadow: none;
+	transform: none;
+	background-color: #fd971f;
+}
+
+.solve-button.disabled:hover {
+	background-color: #fd971f;
+	transform: none;
+	box-shadow: none;
 }

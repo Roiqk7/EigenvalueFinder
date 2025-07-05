@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EigenvalueFinder.Tests", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EigenvalueFinder.Web", "EigenvalueFinder.Web\EigenvalueFinder.Web.csproj", "{DDBA647E-6C20-4ECC-9282-9B45B192E7E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EigenvalueFinder.WebAPI", "EigenvalueFinder.WebAPI\EigenvalueFinder.WebAPI.csproj", "{2C0D57AB-E891-413F-90DC-2367800A3D60}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EigenvalueFinder.cs", "EigenvalueFinder.cs\EigenvalueFinder.cs.csproj", "{202D05E3-752E-4B57-8A12-BE2298B5EF16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,9 +26,9 @@ Global
 		{DDBA647E-6C20-4ECC-9282-9B45B192E7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDBA647E-6C20-4ECC-9282-9B45B192E7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDBA647E-6C20-4ECC-9282-9B45B192E7E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2C0D57AB-E891-413F-90DC-2367800A3D60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C0D57AB-E891-413F-90DC-2367800A3D60}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C0D57AB-E891-413F-90DC-2367800A3D60}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C0D57AB-E891-413F-90DC-2367800A3D60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{202D05E3-752E-4B57-8A12-BE2298B5EF16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{202D05E3-752E-4B57-8A12-BE2298B5EF16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{202D05E3-752E-4B57-8A12-BE2298B5EF16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{202D05E3-752E-4B57-8A12-BE2298B5EF16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

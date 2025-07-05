@@ -12,10 +12,27 @@
 		<h1>EigenvalueFinder</h1>
 	</header>
 
-	<label for="matrix-input">Enter Matrix:</label>
+	<div class="label-container">
+		<label for="matrix-input">Enter Matrix:</label>
+		<span class="info-icon" id="info-icon">?</span>
+		<div class="info-popup" id="info-popup">
+			<p>Enter your matrix elements separated by spaces or commas within each row.</p>
+			<p>Separate rows using semicolons (;) or newlines (Enter key).</p>
+			<p>Example for a 2x2 matrix:</p>
+			<pre>1 2; 3 4</pre>
+			<p>Example for a 3x3 matrix:</p>
+			<pre>1, 2, 3
+4, 5, 6
+7, 8, 9</pre>
+		</div>
+	</div>
 	<textarea id="matrix-input" placeholder="e.g., 1 2 3; 4 5 6; 7 8 9"></textarea>
 
-	<button class="solve-button">Find Eigenvalues</button>
+	<div id="error-message" class="error-message"></div>
+
+	<button class="solve-button disabled" id="solve-button" disabled>Find Eigenvalues</button>
 </div>
+<script src="js/infoPopup.js"></script>
+<script src="js/validateMatrixFormat.js"></script>
 </body>
 </html>
