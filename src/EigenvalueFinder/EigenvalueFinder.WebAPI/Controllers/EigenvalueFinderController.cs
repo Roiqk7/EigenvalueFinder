@@ -11,14 +11,6 @@ public class EigenvalueController : ControllerBase
         [HttpPost("calculate")]
         public IActionResult CalculateEigenvalues([FromBody] MatrixRequest request)
         {
-                // Input validation: Check if the request or matrix is null/empty.
-                // Assuming matrix is a valid square matrix (N x N) and contains valid numbers
-                // as frontend (JavaScript) handles this validation.
-                if (request == null || request.Matrix == null)
-                {
-                        return BadRequest("Matrix data is required.");
-                }
-
                 Matrix matrix = new Matrix(request.Matrix);
                 List<Models.Eigenpair> webApiEigenpairs = new List<Models.Eigenpair>();
 
@@ -26,13 +18,13 @@ public class EigenvalueController : ControllerBase
                 {
                          // eigenpairs = QRSolver.FindEigenpairs(matrix)
                          // DELETE: Testing placeholder
-                         double e1 = 1;
-                         double e2 = 2;
-                         double e3 = 3;
+                         Complex e1 = new Complex(1, 2);
+                         Complex e2 = new Complex(3, 4);
+                         Complex e3 = new Complex(5, 6);
 
-                         List<double> v1 = new List<double> { 1, 0, 0 };
-                         List<double> v2 = new List<double> { 0, 1, 0 };
-                         List<double> v3 = new List<double> { 0, 0, 1 };
+                         List<Complex> v1 = new List<Complex> { e1, e2, e3 };
+                         List<Complex> v2 = new List<Complex> { e1, e2, e3 };
+                         List<Complex> v3 = new List<Complex> { e1, e2, e3 };
 
                          var eigenpair1 = new Eigenpair(e1, v1);
                          var eigenpair2 = new Eigenpair(e2, v2);

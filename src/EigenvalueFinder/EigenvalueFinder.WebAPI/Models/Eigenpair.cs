@@ -2,10 +2,10 @@ namespace EigenvalueFinder.WebAPI.Models;
 
 public class Eigenpair
 {
-        public double Eigenvalue { get; set; }
-        public List<double> Eigenvector { get; set; }
+        public Complex Eigenvalue { get; set; }
+        public List<Complex> Eigenvector { get; set; }
 
-        public Eigenpair(double eigenvalue, List<double> eigenvector)
+        public Eigenpair(Complex eigenvalue, List<Complex> eigenvector)
         {
                 Eigenvalue = eigenvalue;
                 Eigenvector = eigenvector;

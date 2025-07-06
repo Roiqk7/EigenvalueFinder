@@ -22,6 +22,24 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	/**
+	 * Formats a complex number for display (a + bi).
+	 */
+	function formatComplex(complexNum) {
+		const real = complexNum.real.toFixed(4);
+		const imaginary = complexNum.imaginary.toFixed(4);
+
+		if (imaginary === "0.0000") {
+			return real;
+		} else if (real === "0.0000") {
+			return `${imaginary}i`;
+		} else if (imaginary.startsWith("-")) {
+			return `${real} - ${imaginary.substring(1)}i`;
+		} else {
+			return `${real} + ${imaginary}i`;
+		}
+	}
+
+	/**
 	 * Handles the click event for the "Find Eigenvalues" button.
 	 * Sends the 2D matrix to the backend API and displays the results (eigenpairs).
 	 */
@@ -93,12 +111,12 @@ document.addEventListener('DOMContentLoaded', function() {
 				data.eigenpairs.forEach(pair => {
 					// Collect eigenvalues
 					if (pair.eigenvalue !== undefined) {
-						eigenvalues.push(pair.eigenvalue.toFixed(4));
+						eigenvalues.push(formatComplex(pair.eigenvalue));
 					}
 
 					// Collect eigenvectors
 					if (pair.eigenvector && Array.isArray(pair.eigenvector)) {
-						eigenvectors.push(`{${pair.eigenvector.map(v => v.toFixed(4)).join(', ')}}`);
+						eigenvectors.push(`{${pair.eigenvector.map(v => formatComplex(v)).join(', ')}}`);
 					}
 				});
 
@@ -113,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 				if (eigenvectors.length > 0) {
 					resultsHtml += '<h3>Eigenvectors:</h3>';
-					// Join eigenvectors with <br> tags to put each on a new line without bullets
 					resultsHtml += `<p>${eigenvectors.join('<br>')}</p>`;
 				} else {
 					resultsHtml += '<p>No eigenvectors found.</p>';
