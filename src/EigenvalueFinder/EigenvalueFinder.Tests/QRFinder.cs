@@ -1,4 +1,4 @@
-using CoreMatrix = EigenvalueFinder.Core.Matrix; // Alias for Matrix class to avoid ambiguous reference in the tests
+using CoreMatrix = EigenvalueFinder.Core.Matrix;
 using EigenvalueFinder.Core;
 using System.Numerics;
 
@@ -8,6 +8,7 @@ namespace EigenvalueFinder.Tests;
 public static class QRFinderTests
 {
         const int MAX_MATRIX_SIZE = 64;
+
         [Test]
         public static void GetQR_NullMatrix_ThrowsArgumentNullException()
         {

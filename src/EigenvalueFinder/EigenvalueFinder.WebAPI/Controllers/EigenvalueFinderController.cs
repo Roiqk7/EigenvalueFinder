@@ -8,41 +8,64 @@ namespace EigenvalueFinder.WebAPI.Controllers;
 [Route("api/[controller]")]
 public class EigenvalueController : ControllerBase
 {
+        /// <summary>
+        /// Calculates the eigenvalues and eigenvectors of a given matrix using the QR algorithm.
+        /// </summary>
+        /// <param name="request">MatrixRequest containing the matrix data.</param>
+        /// <returns>Returns an EigenvalueResponse containing eigenpairs (eigenvalue and eigenvector).</returns>
         [HttpPost("calculate")]
         public IActionResult CalculateEigenvalues([FromBody] MatrixRequest request)
         {
                 Matrix matrix = new Matrix(request.Matrix);
-                List<Models.Eigenpair> webApiEigenpairs = new List<Models.Eigenpair>();
+                List<Models.Eigenpair> webApiEigenpairs;
 
                 try
                 {
-                         // eigenpairs = QRSolver.FindEigenpairs(matrix)
-                         // DELETE: Testing placeholder
-                         Complex e1 = new Complex(1, 2);
-                         Complex e2 = new Complex(3, 4);
-                         Complex e3 = new Complex(5, 6);
+                        List<QRUtils.Eigenpair> eigenpairs = QRSolver.FindEigenpairs(matrix);
 
-                         List<Complex> v1 = new List<Complex> { e1, e2, e3 };
-                         List<Complex> v2 = new List<Complex> { e1, e2, e3 };
-                         List<Complex> v3 = new List<Complex> { e1, e2, e3 };
-
-                         var eigenpair1 = new Eigenpair(e1, v1);
-                         var eigenpair2 = new Eigenpair(e2, v2);
-                         var eigenpair3 = new Eigenpair(e3, v3);
-
-                         webApiEigenpairs.Add(eigenpair1);
-                         webApiEigenpairs.Add(eigenpair2);
-                         webApiEigenpairs.Add(eigenpair3);
+                        // Convert core eigenpairs to web API eigenpairs
+                        webApiEigenpairs = ConvertToWebApiModel(eigenpairs);
                 }
                 catch (Exception ex)
                 {
-                        // TODO: Log the exception and handle it better
+                        // TODO: Use proper logging mechanism (e.g., ILogger)
                         Console.WriteLine($"Error during eigenvalue calculation: {ex.Message}");
                         return StatusCode(500, "An error occurred during eigenvalue calculation.");
                 }
 
                 var response = new EigenvalueResponse(webApiEigenpairs);
-
                 return Ok(response);
+        }
+
+        /// <summary>
+        /// Converts a list of core library Eigenpairs to a list of Web API Eigenpairs.
+        /// </summary>
+        /// <param name="corePairs">List of core Eigenpairs to convert.</param>
+        /// <returns>List of converted Web API Eigenpairs.</returns>
+        private static List<EigenvalueFinder.WebAPI.Models.Eigenpair> ConvertToWebApiModel(List<EigenvalueFinder.Core.QRUtils.Eigenpair> corePairs)
+        {
+                return corePairs.Select(ConvertToWebApiModel).ToList();
+        }
+
+        /// <summary>
+        /// Converts a single core Eigenpair to a Web API Eigenpair.
+        /// </summary>
+        /// <param name="corePair">The core Eigenpair to convert.</param>
+        /// <returns>The converted Web API Eigenpair.</returns>
+        private static EigenvalueFinder.WebAPI.Models.Eigenpair ConvertToWebApiModel(EigenvalueFinder.Core.QRUtils.Eigenpair corePair)
+        {
+                var eigenvalue = new EigenvalueFinder.WebAPI.Models.Complex(
+                        corePair.eigenvalue.Real,
+                        corePair.eigenvalue.Imaginary
+                );
+
+                var vector = new List<EigenvalueFinder.WebAPI.Models.Complex>();
+                for (int i = 0; i < corePair.eigenvector.RowCount; i++)
+                {
+                        var c = corePair.eigenvector[i, 0];
+                        vector.Add(new EigenvalueFinder.WebAPI.Models.Complex(c.Real, c.Imaginary));
+                }
+
+                return new EigenvalueFinder.WebAPI.Models.Eigenpair(eigenvalue, vector);
         }
 }
