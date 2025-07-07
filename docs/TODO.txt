@@ -1,8 +1,6 @@
-4. QR-algorithm
-	A] QR finder might be able to take ref A (bool param for tests not to)
-	B] Create the algorithm itself
-	C] Create algorithm to read the solution
-	D] Create algorithm to find the eigen-vertices
-	E] Write tests for the algorithm
-5. Write documentation
-6. Write Web UI
+B. Write documentation
+	- User documentation
+	- Programming documentation
+	- API documentation
+C. Web
+	2. Write tests for the .WebAPI
