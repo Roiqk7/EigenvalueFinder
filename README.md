@@ -113,7 +113,8 @@ The output folder (`./publish`) will contain a self-contained deployment-ready v
 
 ## 🖼️ Gallery
 
-*Coming soon: demo screenshots or GIFs.*
+![pic1](.images/pic1)
+![pic2](.images/pic2)
 
 ---
 
