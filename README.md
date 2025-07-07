@@ -23,7 +23,7 @@ EigenvalueFinder is a math web application that computes eigenvalues and eigenve
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/EigenvalueFinder.git
+git clone https://github.com/Roiqk7/EigenvalueFinder.git
 cd EigenvalueFinder
 ```
 
