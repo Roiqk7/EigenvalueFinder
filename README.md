@@ -114,7 +114,7 @@ The output folder (`./publish`) will contain a self-contained deployment-ready v
 ## 🖼️ Gallery
 
 ![pic2](/.images/pic2.jpg)
-![pic1](/.images/pic1.jpg)
+![pic3](/.images/pic3.jpg)
 
 ---
 
