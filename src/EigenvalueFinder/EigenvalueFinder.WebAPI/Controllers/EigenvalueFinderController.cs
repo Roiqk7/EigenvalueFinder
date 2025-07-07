@@ -22,8 +22,6 @@ public class EigenvalueController : ControllerBase
                 try
                 {
                         List<QRUtils.Eigenpair> eigenpairs = QRSolver.FindEigenpairs(matrix);
-
-                        // Convert core eigenpairs to web API eigenpairs
                         webApiEigenpairs = ConvertToWebApiModel(eigenpairs);
                 }
                 catch (Exception ex)
