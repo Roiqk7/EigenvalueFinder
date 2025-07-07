@@ -148,7 +148,8 @@ You'll find an interactive documentation where you can test the `POST` endpoint 
 
 ## ⚠️ Known Limitations
 
-- Provided eigenpairs are not guaranteed to form an eigenpair.
+- Provided eigenpairs are not guaranteed to form an eigenpair.'
+- Eigenvectors tend to be wrong.
 - Floating-point instability may occur on ill-conditioned matrices but `MathNet.Numerics` should take care of it.
 
 ---
