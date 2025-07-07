@@ -1,34 +1,40 @@
 # EigenvalueFinder
 
-Program for finding eigenvalues and eigenvectors using the [QR algorithm](https://en.wikipedia.org/wiki/QR_algorithm).
+EigenvalueFinder is a math web application that computes eigenvalues and eigenvectors of real matrices using the QR Algorithm. It consists of a Web API, frontend, and a numerical core powered by MathNet.Numerics.
 
-**TODO: gif of the web usage**
+---
 
-## Installation
+## 📦 Features
 
-Clone the repository:
+- Calculate eigenvalues and eigenvectors via the QR algorithm
+- Visual frontend and programmatic Web API
+- OpenAPI documentation with Swagger
+- NUnit unit-tested core algorithm
 
+---
+
+## 🔧 Installation
+
+### Prerequisites
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [Git](https://git-scm.com/downloads)
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/EigenvalueFinder.git
+cd EigenvalueFinder
 ```
-git clone https://github.com/Roiqk7/EigenvalueFinder.git
+
+### 2. Restore Dependencies and Build
+
+```bash
+cd src/EigenvalueFinder/
+dotnet restore
+dotnet build
 ```
-## Dependencies
 
-**TODO:**
+---
 
-## Usage
-
-**TODO:**
-
-## Feedback
-
-Feel free to report any issues or suggest features in the issues section.
-
-## What the program CAN'T do aka TODOs
-
-* Find eigenvector for a given eigenvalue
-  * The program simply returns the collumns of the accumulated `Q` matrix and assigns it to the `EigenvalueFinder.Core.QRUtils.Eigenpair.eigenvector` variable without knowing if the eigenvalue and eigenvector form an eigenpair.
-  * This could be solved by using the [inverse iteration](https://en.wikipedia.org/wiki/Inverse_iteration).
-
-## Gallery
-
-**TODO:**
+## ▶️ Running the Appli
