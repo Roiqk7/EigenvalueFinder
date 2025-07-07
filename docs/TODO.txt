@@ -1,6 +1,1 @@
-B. Write documentation
-	- User documentation
-	- Programming documentation
-	- API documentation
-C. Web
-	2. Write tests for the .WebAPI
+* Make ports more easily configurable
