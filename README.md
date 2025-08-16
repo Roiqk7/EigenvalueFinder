@@ -30,7 +30,7 @@ cd EigenvalueFinder
 ### 2. Restore Dependencies and Build
 
 ```bash
-cd src/EigenvalueFinder/
+cd src/
 dotnet restore
 dotnet build
 ```
