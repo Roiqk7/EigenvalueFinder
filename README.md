@@ -41,36 +41,45 @@ dotnet build
 
 ### Run the API
 
-This project is a Web API backend hosted using ASP.NET Core. Start it with:
+To run both the backend API and the frontend in one simple step, use the provided `run.sh` script in the root directory of the project:
 
-```bash
-dotnet run --project EigenvalueFinder.WebAPI
+```
+./run.sh
 ```
 
-By default, this will start the server on:
+This will automatically start the backend server on `https://localhost:5001` and the frontend server on `http://localhost:8080`.
 
-- `https://localhost:5001`
+Now visit `http://localhost:8080` to view the page.
 
-### Run the Frontend
+Press `Ctrl+C` to shut down both services.
 
-The frontend is a static HTML/JS/CSS page located in:
+<details>
+<summary><b>Address already in use error</b></summary>
+<br>
 
-```text
-EigenvalueFinder.Web/wwwroot/index.html
+If you see an error like `OSError: [Errno 48] Address already in use`, it means a previous process is still running  and occupying the necessary port. To fix this, you need to manually kill the old process.
+
+1. **Find the processes**: Use the `lsof` command to find the process IDs (PIDs) using the ports.
+
+```
+# For port 5001  
+lsof -i :5001  
+
+# For port 8080  
+lsof -i :8080  
 ```
 
-You can open this file directly in a browser, or serve it using a static file server:
+2. **Kill the processes**: Use the `kill` command with the PIDs you found.
 
-```bash
-cd EigenvalueFinder.Web/wwwroot
-python3 -m http.server 8080
+```
+kill <PID>  
 ```
 
-Visit `http://localhost:8080`.
+If that doesn't work, you can use `kill -9 <PID>` to force the termination.
 
-> Optionally, static files can be served directly from the WebAPI by copying them into its `wwwroot/` directory.
+3. **Run the script again**: After you've cleared the ports, you can rerun `./run.sh`.
 
----
+</details>
 
 ## 🧪 Running Unit Tests
 
