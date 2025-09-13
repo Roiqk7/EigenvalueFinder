@@ -140,3 +140,8 @@ The output folder (`./publish`) will contain a self-contained deployment-ready v
 ## 📜 License
 
 MIT License – see `LICENSE`
+
+## 🤖 AI used for:
+- Commenting 
+- Documentation
+- Most frontend code
