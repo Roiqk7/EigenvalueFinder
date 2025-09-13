@@ -132,24 +132,9 @@ This runs `EigenvalueFinder.Tests` using NUnit.
 
 ---
 
-## 📋 Swagger & API Testing
-
-After running the WebAPI, navigate to:
-
-```
-https://localhost:5001/swagger/index.html
-```
-
-You'll find an interactive documentation where you can test the `POST` endpoint for sending matrices and receiving computed eigenvalues.
-
-> 🔄 Note: Cross-Origin Requests are allowed from `http://localhost:63343` by default. You can modify this in `WebAPI.cs` if you're hosting the frontend elsewhere.
-
----
-
 ## ⚠️ Known Limitations
 
-- Provided eigenpairs are not guaranteed to form an eigenpair.'
-- Eigenvectors tend to be wrong.
+- Provided eigenpairs are not guaranteed to form an eigenpair.
 - Floating-point instability may occur on ill-conditioned matrices but `MathNet.Numerics` should take care of it.
 
 ---
@@ -159,7 +144,7 @@ You'll find an interactive documentation where you can test the `POST` endpoint 
 - Fork and clone the repository
 - Create a new branch for each feature/fix
 - Use clear commit messages
-- Run `dotnet test` before submitting PRs
+- Run `dotnet test` before submitting changes
 - Update this documentation if relevant
 
 ---
