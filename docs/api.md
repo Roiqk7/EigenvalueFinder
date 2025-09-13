@@ -21,24 +21,6 @@ dotnet run --project EigenvalueFinder.WebAPI
 
 ---
 
-## 🔄 CORS Configuration
-
-The API accepts cross-origin requests from:
-
-```
-http://localhost:63343
-```
-
-If your frontend is hosted elsewhere, you must update the CORS policy in `WebAPI.cs`:
-
-```csharp
-builder.WithOrigins("http://localhost:63343")
-       .AllowAnyHeader()
-       .AllowAnyMethod();
-```
-
----
-
 ## 🚀 Endpoint: `/api/eigenvalue/calculate`
 
 ### Method: `POST`
