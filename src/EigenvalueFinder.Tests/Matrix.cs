@@ -1,4 +1,4 @@
-using CoreMatrix = EigenvalueFinder.Core.Matrix; // Alias for Matrix class to avoid ambiguous reference
+using CoreMatrix = EigenvalueFinder.Core.Matrix; 
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra.Complex;
 
@@ -268,7 +268,7 @@ public static class MatrixTests
         [TestCase(0, -1)]
         [TestCase(2, 0)]
         [TestCase(0, 2)]
-        public static void Indexer_Get_ThrowsArgumentOutOfRangeException(int row, int col) // Changed to ArgumentOutOfRangeException
+        public static void Indexer_Get_ThrowsArgumentOutOfRangeException(int row, int col) 
         {
                 CoreMatrix matrix = new CoreMatrix(2, 2);
 
@@ -280,7 +280,7 @@ public static class MatrixTests
         [TestCase(0, -1)]
         [TestCase(2, 0)]
         [TestCase(0, 2)]
-        public static void Indexer_Set_ThrowsArgumentOutOfRangeException(int row, int col) // Changed to ArgumentOutOfRangeException
+        public static void Indexer_Set_ThrowsArgumentOutOfRangeException(int row, int col)
         {
                 CoreMatrix matrix = new CoreMatrix(2, 2);
 
