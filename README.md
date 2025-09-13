@@ -145,3 +145,4 @@ MIT License – see `LICENSE`
 - Commenting 
 - Documentation
 - Most frontend code
+- Helped debugging
