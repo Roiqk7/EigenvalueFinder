@@ -139,4 +139,4 @@ The output folder (`./publish`) will contain a self-contained deployment-ready v
 
 ## 📜 License
 
-MIT License – see `LICENSE.md`
+MIT License – see `LICENSE`
