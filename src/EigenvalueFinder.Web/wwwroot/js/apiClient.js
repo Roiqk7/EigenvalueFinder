@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		solveButton.disabled = true; // Disable button during calculation
 		solveButton.classList.add('disabled');
 
-		const apiEndpoint = "http://localhost:5000/api/Eigenvalue/calculate";
+		const apiEndpoint = "http://localhost:5001/api/Eigenvalue/calculate";
 
 		try {
 			const response = await fetch(apiEndpoint, {
