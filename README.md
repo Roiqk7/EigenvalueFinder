@@ -147,3 +147,4 @@ MIT License – see `LICENSE`
 - Documentation
 - Most frontend code
 - Helped debugging
+- Assited with writting tests
