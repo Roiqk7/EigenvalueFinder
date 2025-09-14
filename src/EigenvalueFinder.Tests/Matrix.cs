@@ -1,3 +1,4 @@
+using System.Globalization;
 using CoreMatrix = EigenvalueFinder.Core.Matrix; 
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra.Complex;
@@ -7,6 +8,14 @@ namespace EigenvalueFinder.Tests;
 [TestFixture]
 public static class MatrixTests
 {
+        [SetUp]
+        public void Setup()
+        {
+                // To make sure decimal delimiter is what the OS expects
+                CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+                CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+        }
+        
         [Test]
         public static void Constructor_Dimensions_CreatesZeroMatrix()
         {
