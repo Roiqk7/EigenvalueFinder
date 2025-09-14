@@ -25,4 +25,5 @@ jobs:
         run: dotnet build src/EigenvalueFinder.sln --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test src/EigenvalueFinder.sln --no-build --verbosity normal
+        run: dotnet test src/EigenvalueFinder.sln --configuration Release --verbosity normal
+
