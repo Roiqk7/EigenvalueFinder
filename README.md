@@ -8,8 +8,7 @@ EigenvalueFinder is a math web application that computes eigenvalues and eigenve
 
 - Calculate eigenvalues and eigenvectors via the QR algorithm
 - Visual frontend and programmatic Web API
-- OpenAPI documentation with Swagger
-- NUnit unit-tested core algorithm
+- NUnit unit-tested core methods
 
 ---
 
@@ -112,18 +111,6 @@ This will run all unit tests in the `EigenvalueFinder.Tests` project using NUnit
 - Accurate eigenpairs:
 	- The program currently assigns the columns of the accumulated `Q` matrix as eigenvectors, which is correct but then randomly assigns them to eigenvalues.
 	- For future development, consider implementing [Inverse Iteration](https://en.wikipedia.org/wiki/Inverse_iteration) or verifying eigenvectors using matrix identity: `A * v = λ * v`.
-
----
-
-## 📤 Publishing for Deployment
-
-To publish the Web API project for deployment:
-
-```bash
-dotnet publish EigenvalueFinder.WebAPI --configuration Release --output ./publish
-```
-
-The output folder (`./publish`) will contain a self-contained deployment-ready version.
 
 ---
 
