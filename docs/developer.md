@@ -1,6 +1,6 @@
 # Developer Documentation
 
-Welcome to the internal developer documentation for **EigenvalueFinder**.
+Welcome to the developer documentation for **EigenvalueFinder**.
 
 This guide is intended for contributors and maintainers of the project.
 
@@ -129,6 +129,52 @@ This runs `EigenvalueFinder.Tests` using NUnit.
 10. **end for**
 
 **Output:** Diagonal of $A_i$ approximates eigenvalues and columns of $Q_i$ approximate the eigenvectors.
+
+---
+
+## 📝 Core Class Summaries
+
+### `Matrix`
+A thin wrapper around `MathNet.Numerics.LinearAlgebra.Complex.DenseMatrix` providing a friendlier API for EigenvalueFinder.  
+Features:
+- **Construction**:
+  - Empty zero matrix (`rows`, `columns`)
+  - From `List<List<double>>` (real numbers)
+  - From `Complex[,]` (complex numbers)
+  - Wrap existing `DenseMatrix`
+- **Static Helpers**:
+  - `Identity(int size)` – creates an identity matrix  
+  - `Identity(int size, int index)` – creates a standard basis column vector
+- **Indexing**: 2D indexer for element access
+- **Operations**:
+  - Matrix–matrix multiplication, addition, subtraction
+  - Scalar multiplication (both `Complex * Matrix` and `Matrix * Complex`)
+  - `Transpose()`, `Clone()`
+  - Implicit conversion of a 1×1 `Matrix` to `Complex`
+- **Utilities**:
+  - `GetInternalMatrix()` exposes the underlying `DenseMatrix`
+  - `ToString()` pretty-prints contents
+
+### `QRFinder`
+A static helper class implementing **QR decomposition** via Householder reflections.
+- Entry point: `getQR(Matrix A)`  
+  - Validates `A` is square and non-null
+  - Iteratively constructs the Householder reflectors
+  - Produces orthogonal matrix `Q` and upper triangular matrix `R`
+- Returns a `QRUtils.QR` struct holding `(Q, R)`
+
+### `QRSolver`
+Implements the **QR algorithm** to approximate eigenvalues (and eigenvectors) of a square matrix.
+- Entry point: `FindEigenpairs(Matrix A)`  
+  - Repeatedly applies QR decomposition (`QRFinder.getQR`) to `A`
+  - Accumulates `Q` to approximate eigenvectors
+  - Extracts eigenvalues from the converged (quasi-upper-triangular) matrix
+- Utilities:
+  - `GetEigenvectors(Matrix QAccumulated)` – extracts columns as eigenvectors
+  - Internal `IsUpperTriangular` – detects convergence
+  - Internal `GetEigenvalues` – handles both 1×1 and 2×2 blocks to return `List<Complex>`
+- Returns a list of `QRUtils.Eigenpair` structs  
+  *(currently eigenvectors and eigenvalues are paired naively — see TODO in code)*
 
 ---
 
