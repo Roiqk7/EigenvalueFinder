@@ -9,7 +9,6 @@ This document describes the API endpoint(s) provided by the `EigenvalueFinder.We
 During development, the API runs on:
 
 ```
-http://localhost:5000
 https://localhost:5001
 ```
 
