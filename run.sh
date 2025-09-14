@@ -4,7 +4,7 @@ set -ueo pipefail
 
 # --- Start the Backend API ---
 echo "▶️ Starting the ASP.NET Core Web API..."
-ASPNETCORE_URLS="https://localhost:5001" dotnet run --project src/EigenvalueFinder.WebAPI &
+ASPNETCORE_URLS="http://localhost:5001" dotnet run --project src/EigenvalueFinder.WebAPI &
 
 echo "✅ Backend API is running on https://localhost:5001"
 echo "-----------------------------------"
