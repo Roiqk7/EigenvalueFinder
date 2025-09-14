@@ -81,6 +81,20 @@ If that doesn't work, you can use `kill -9 <PID>` to force the termination.
 
 </details>
 
+<details>
+<summary><b>The ASP.NET Core developer certificate is not trusted</b></summary>
+<br>
+
+This error can be fixed by running this command:
+
+```
+dotnet dev-certs https --trust
+```
+
+*Password may be required by the OS*
+
+</details>
+
 ## 🧪 Running Unit Tests
 
 To run the test suite:
