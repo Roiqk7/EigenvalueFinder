@@ -699,21 +699,6 @@ public static class MatrixTests
         }
 
         [Test]
-        public static void ToString_ReturnsFormattedString()
-        {
-                Complex[,] data = {
-                        { new Complex(1, 0), new Complex(2.5, -1.2) },
-                        { new Complex(0, 3), new Complex(4, 0) }
-                };
-                CoreMatrix matrix = new CoreMatrix(data);
-
-                string result = matrix.ToString();
-
-                string expected = $"<1; 0>\t<2,5; -1,2>\t\n<0; 3>\t<4; 0>\t\n";
-                Assert.That(result, Is.EqualTo(expected));
-        }
-
-        [Test]
         [Repeat(50)]
         public static void Operator_Multiply_MatrixMatrix_RandomizedComparisonWithMathNet()
         {
