@@ -8,10 +8,9 @@ namespace EigenvalueFinder.Tests;
 [TestFixture]
 public static class MatrixTests
 {
-        [SetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public static void Setup()
         {
-                // To make sure decimal delimiter is what the OS expects
                 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
                 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
         }
