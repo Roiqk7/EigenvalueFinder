@@ -14,6 +14,7 @@ This guide is intended for contributors and maintainers of the project.
 - [Building and Running](#building-and-running)
 - [Testing](#testing)
 - [Algorithm Summary](#algorithm-summary)
+- [Class summary](core-class-summaries)
 - [Swagger & API Testing](#swagger--api-testing)
 - [Known Limitations](#known-limitations)
 - [Contribution Guidelines](#contribution-guidelines)
