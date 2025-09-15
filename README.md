@@ -94,6 +94,14 @@ dotnet dev-certs https --trust
 
 </details>
 
+<details>
+<summary><b>Load Failed Error</b></summary>
+<br>
+
+This error indicates that the front end and back end failed to communicate properly.  
+Please ensure you’ve followed all usage instructions before retrying.
+</details>
+
 ## 🧪 Running Unit Tests
 
 To run the test suite:
